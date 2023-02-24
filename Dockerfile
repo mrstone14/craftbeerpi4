@@ -50,6 +50,28 @@ RUN pip3 install --no-cache-dir /cbpi-src
 COPY --from=download --chown=craftbeerpi /downloads /downloads
 RUN pip3 install --no-cache-dir /downloads/cbpi-ui.zip
 
+RUN pip3 install --no-cache-dir cbpi4-pt100x 
+RUN pip3 install --no-cache-dir cbpi4-buzzer 
+RUN pip3 install --no-cache-dir cbpi4-BM-PID-SmartBoilWithPump 
+RUN pip3 install --no-cache-dir cbpi4-iSpindle 
+RUN pip3 install --no-cache-dir cbpi4-PID-AutoTune 
+RUN pip3 install --no-cache-dir cbpi4-KettleSensor
+RUN pip3 install --no-cache-dir cbpi4-hx711-loadcell
+RUN pip3 install --no-cache-dir cbpi4-Flowmeter
+RUN pip3 install --no-cache-dir cbpi4-system
+RUN pip3 install --no-cache-dir cbpi4-dht22-temp-hum-sensor
+RUN pip3 install --no-cache-dir cbpi4-GoupedActor
+RUN pip3 install --no-cache-dir cbpi4-GoupedPowerActor
+RUN pip3 install --no-cache-dir cpbi4-DependentActor
+RUN pip3 install --no-cache-dir cbpi4-GPIODependentActor
+RUN pip3 install --no-cache-dir cbpi4-pca9685
+RUN pip3 install --no-cache-dir cbpi4-http-actor
+RUN pip3 install --no-cache-dir cbpi4-PIDBoil
+RUN pip3 install --no-cache-dir cbpi4-PIDHerms
+RUN pip3 install --no-cache-dir cbpi4-BM_Steps
+RUN pip3 install --no-cache-dir cbpi4_Fermenterstep
+RUN pip3 install --no-cache-dir cbpi4-RecipeImport
+
 # Clean up installation files
 USER root
 RUN rm -rf /downloads /cbpi-src
