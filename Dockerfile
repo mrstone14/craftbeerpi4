@@ -59,7 +59,7 @@ RUN pip3 install --no-cache-dir cbpi4-KettleSensor
 RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-hx711-loadcell/archive/main.zip
 RUN pip3 install --no-cache-dir cbpi4-Flowmeter
 RUN pip3 install --no-cache-dir cbpi4-system
-RUN pip3 install --no-cache-dir cbpi4-dht22-temp-hum-sensor
+RUN pip3 install --no-cache-dir https://github.com/DanZee/cbpi4-dht22-temp-hum-sensor/archive/main.zip
 RUN pip3 install --no-cache-dir cbpi4-GoupedActor
 RUN pip3 install --no-cache-dir cbpi4-GoupedPowerActor
 RUN pip3 install --no-cache-dir cpbi4-DependentActor
