@@ -1,4 +1,4 @@
-name: 'Build CraftBeerPi4'
+name: 'Build CraftBeerPi4 '
 
 on:
   push:
