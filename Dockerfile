@@ -62,7 +62,7 @@ RUN pip3 install --no-cache-dir cbpi4-system
 RUN pip3 install --no-cache-dir https://github.com/DanZee/cbpi4-dht22-temp-hum-sensor/archive/main.zip
 RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-GroupedActor/archive/main.zip
 RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-GroupedPowerActor/archive/main.zip
-RUN pip3 install --no-cache-dir https://github.com/avollkopf/cpbi4-DependentActor/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-DependentActor/archive/main.zip
 RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-GPIODependentActor/archive/main.zip
 RUN pip3 install --no-cache-dir https://github.com/jtubb/cbpi4-pca9685/archive/main.zip
 RUN pip3 install --no-cache-dir https://github.com/hurra/cbpi4-http-actor/archive/main.zip
