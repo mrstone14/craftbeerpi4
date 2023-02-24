@@ -56,7 +56,7 @@ RUN pip3 install --no-cache-dir cbpi4-BM-PID-SmartBoilWithPump
 RUN pip3 install --no-cache-dir cbpi4-iSpindle 
 RUN pip3 install --no-cache-dir cbpi4-PID-AutoTune 
 RUN pip3 install --no-cache-dir cbpi4-KettleSensor
-RUN pip3 install --no-cache-dir cbpi4-hx711-loadcell
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-hx711-loadcell/archive/main.zip
 RUN pip3 install --no-cache-dir cbpi4-Flowmeter
 RUN pip3 install --no-cache-dir cbpi4-system
 RUN pip3 install --no-cache-dir cbpi4-dht22-temp-hum-sensor
