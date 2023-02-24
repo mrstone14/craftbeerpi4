@@ -60,17 +60,17 @@ RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-hx711-loadcel
 RUN pip3 install --no-cache-dir cbpi4-Flowmeter
 RUN pip3 install --no-cache-dir cbpi4-system
 RUN pip3 install --no-cache-dir https://github.com/DanZee/cbpi4-dht22-temp-hum-sensor/archive/main.zip
-RUN pip3 install --no-cache-dir cbpi4-GoupedActor
-RUN pip3 install --no-cache-dir cbpi4-GoupedPowerActor
-RUN pip3 install --no-cache-dir cpbi4-DependentActor
-RUN pip3 install --no-cache-dir cbpi4-GPIODependentActor
-RUN pip3 install --no-cache-dir cbpi4-pca9685
-RUN pip3 install --no-cache-dir cbpi4-http-actor
-RUN pip3 install --no-cache-dir cbpi4-PIDBoil
-RUN pip3 install --no-cache-dir cbpi4-PIDHerms
-RUN pip3 install --no-cache-dir cbpi4-BM_Steps
-RUN pip3 install --no-cache-dir cbpi4_Fermenterstep
-RUN pip3 install --no-cache-dir cbpi4-RecipeImport
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-GoupedActor/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-GoupedPowerActor/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cpbi4-DependentActor/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-GPIODependentActor/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/jtubb/cbpi4-pca9685/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/hurra/cbpi4-http-actor/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-PIDBoil/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-PIDHerms/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-BM_Steps/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4_Fermenterstep/archive/main.zip
+RUN pip3 install --no-cache-dir https://github.com/avollkopf/cbpi4-RecipeImport/archive/main.zip
 
 # Clean up installation files
 USER root
