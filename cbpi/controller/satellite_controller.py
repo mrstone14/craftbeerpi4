@@ -2,7 +2,7 @@
 import asyncio
 import json
 from re import M
-from asyncio_mqtt import Client, MqttError, Will
+from aiomqtt import Client, MqttError, Will
 from contextlib import AsyncExitStack, asynccontextmanager
 from cbpi import __version__
 import logging
@@ -73,7 +73,7 @@ class SatelliteController:
             except asyncio.CancelledError:
                 # Cancel
                 self.logger.warning("MQTT Listening Cancelled")
-                #break
+                break
             except MqttError as e:
                 self.logger.error("MQTT Exception: {}".format(e))
             except Exception as e:
