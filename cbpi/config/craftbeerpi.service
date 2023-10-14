@@ -3,7 +3,7 @@ Description=Craftbeer Pi
 
 [Service]
 WorkingDirectory=/home/pi
-ExecStart=/usr/local/bin/cbpi start
+ExecStart=/home/pi/.local/bin/cbpi start
 
 [Install]
 WantedBy=multi-user.target
