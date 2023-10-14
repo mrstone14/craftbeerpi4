@@ -202,7 +202,7 @@ class CraftBeerPiCli():
                 if os.path.exists(os.path.join("/etc/xdg/autostart/","chromium.desktop")) is False:
                     srcfile = self.config.get_file_path("chromium.desktop")
                     destfile = os.path.join("/etc/xdg/autostart/")
-                    shutil.copy(srcfile, destfile)
+                    shutil.os.system('sudo cp "{}" "{}"'.format(srcfile,destfile))
                     print("Copied chromium.desktop to /etc/xdg/autostart/")
                 else:
                     print("chromium.desktop is already located in /etc/xdg/autostart/")
@@ -214,7 +214,7 @@ class CraftBeerPiCli():
             print("Remove chromium.desktop from /etc/xdg/autostart/")
             try:
                 if os.path.exists(os.path.join("/etc/xdg/autostart/","chromium.desktop")) is True:
-                    os.remove(os.path.join("/etc/xdg/autostart/","chromium.desktop"))
+                    shutil.os.system('sudo rm -rf "{}"'.format(os.path.join("/etc/xdg/autostart/","chromium.desktop")))
                     print("Deleted chromium.desktop from /etc/xdg/autostart/")
                 else:
                     print("chromium.desktop is not located in /etc/xdg/autostart/")
