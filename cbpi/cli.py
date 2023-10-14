@@ -44,8 +44,8 @@ class CraftBeerPiCli():
 
     def list_one_wire(self):
         print("List 1Wire")
-        call(["modprobe", "w1-gpio"])
-        call(["modprobe", "w1-therm"])
+        call(["sudo","modprobe", "w1-gpio"])
+        call(["sudo","modprobe", "w1-therm"])
         try:
             for dirname in os.listdir('/sys/bus/w1/devices'):
                 if (dirname.startswith("28") or dirname.startswith("10")):
@@ -155,7 +155,7 @@ class CraftBeerPiCli():
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is False:
                     srcfile = self.config.get_file_path("craftbeerpi.service")
                     destfile = os.path.join("/etc/systemd/system")
-                    shutil.copy(srcfile, destfile)
+                    shutil.os.system('sudo cp "{}" "{}"'.format(srcfile,destfile))
                     print("Copied craftbeerpi.service to /etc/systemd/system")
                     os.system('systemctl enable craftbeerpi.service')
                     print('Enabled craftbeerpi service')
@@ -167,7 +167,7 @@ class CraftBeerPiCli():
                 print(e)
                 return
             return
-        elif(name == "off"): 
+        elif(name == "off"):
             print("Remove craftbeerpi.service from systemd")
             try:
                 status = os.popen('systemctl list-units --type=service --state=running | grep craftbeerpi.service').read()
@@ -180,7 +180,7 @@ class CraftBeerPiCli():
                     print('craftbeerpi.service service is not running')
 
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is True:
-                    os.remove(os.path.join("/etc/systemd/system","craftbeerpi.service")) 
+                    shutil.os.system('sudo rm -rf "{}"'.format(os.path.join("/etc/systemd/system","craftbeerpi.service")))
                     print("Deleted craftbeerpi.service from /etc/systemd/system")
                 else:
                     print("craftbeerpi.service is not located in /etc/systemd/system")
@@ -188,7 +188,6 @@ class CraftBeerPiCli():
                 print(e)
                 return
             return
-
 
     def chromium(self, name):
         '''Enable or disable autostart'''
