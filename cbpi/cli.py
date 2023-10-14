@@ -157,9 +157,9 @@ class CraftBeerPiCli():
                     destfile = os.path.join("/etc/systemd/system")
                     shutil.os.system('sudo cp "{}" "{}"'.format(srcfile,destfile))
                     print("Copied craftbeerpi.service to /etc/systemd/system")
-                    os.system('systemctl enable craftbeerpi.service')
+                    shutil.os.system('sudo systemctl enable craftbeerpi.service')
                     print('Enabled craftbeerpi service')
-                    os.system('systemctl start craftbeerpi.service')
+                    shutil.os.system('sudo systemctl start craftbeerpi.service')
                     print('Started craftbeerpi.service')
                 else:
                     print("craftbeerpi.service is already located in /etc/systemd/system")
@@ -172,9 +172,9 @@ class CraftBeerPiCli():
             try:
                 status = os.popen('systemctl list-units --type=service --state=running | grep craftbeerpi.service').read()
                 if status.find("craftbeerpi.service") != -1:
-                    os.system('systemctl stop craftbeerpi.service')
+                    shutil.os.system('sudo systemctl stop craftbeerpi.service')
                     print('Stopped craftbeerpi service')
-                    os.system('systemctl disable craftbeerpi.service')
+                    shutil.os.system('sudo systemctl disable craftbeerpi.service')
                     print('Removed craftbeerpi.service as service')
                 else:
                     print('craftbeerpi.service service is not running')
