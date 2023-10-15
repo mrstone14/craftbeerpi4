@@ -94,7 +94,7 @@ class ConfigFolder:
             #['fermenter_data.json', 'file'], created by fermentation_controller @ start if not available
             #['step_data.json', 'file'],  created by step_controller @ start if not available
             ['config.json', 'file'],
-            ['craftbeerpi.service', 'file'],
+            ['craftbeerpi.template', 'file'],
             ['chromium.desktop', 'file'],
             ['dashboard', 'folder'],
             ['dashboard/widgets', 'folder'],
@@ -181,7 +181,7 @@ class ConfigFolder:
         self.copyDefaultFileIfNotExists("fermenter_data.json")
         self.copyDefaultFileIfNotExists("step_data.json")
         self.copyDefaultFileIfNotExists("config.json")
-        self.copyDefaultFileIfNotExists("craftbeerpi.service")
+        self.copyDefaultFileIfNotExists("craftbeerpi.template")
         self.copyDefaultFileIfNotExists("chromium.desktop")
 
         print("Config Folder created")
@@ -206,5 +206,5 @@ class ConfigFolder:
                     shutil.chown(os.path.join(dirpath, filename), owner, group)
         except:
             print("problems assigning file or folder permissions")
-            print("if this happend on windows its fine")
-            print("if this happend in the dev container running inside windows its also fine but you might have to rebuild the container if you run into further problems")
+            print("if this happened on windows its fine")
+            print("if this happened in the dev container running inside windows its also fine but you might have to rebuild the container if you run into further problems")

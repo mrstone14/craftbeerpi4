@@ -150,12 +150,27 @@ class CraftBeerPiCli():
             else:
                 print("CraftBeerPi Autostart is {}OFF{}".format(Fore.RED,Style.RESET_ALL))
         elif(name == "on"):
+            user=os.getlogin()
             print("Add craftbeerpi.service to systemd")
             try:
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is False:
+                    templatefile=self.config.get_file_path("craftbeerpi.template")
+                    shutil.os.system('cp "{}" "{}"'.format(templatefile,self.config.get_file_path("craftbeerpi.service")))
                     srcfile = self.config.get_file_path("craftbeerpi.service")
+                    import jinja2
+
+                    templateLoader = jinja2.FileSystemLoader(searchpath=os.path.join(self.config.get_file_path("")))
+                    templateEnv = jinja2.Environment(loader=templateLoader)
+                    operatingsystem = str(platform.system()).lower()
+                    if operatingsystem.startswith("win"):
+                        srcfile=str(srcfile).replace('\\','/')
+
+                    template = templateEnv.get_template("craftbeerpi.service")
+                    outputText = template.render(user=user)
+                    with open(srcfile, "w") as fh:
+                        fh.write(outputText)
                     destfile = os.path.join("/etc/systemd/system")
-                    shutil.os.system('sudo cp "{}" "{}"'.format(srcfile,destfile))
+                    shutil.os.system('sudo mv "{}" "{}"'.format(srcfile,destfile))
                     print("Copied craftbeerpi.service to /etc/systemd/system")
                     shutil.os.system('sudo systemctl enable craftbeerpi.service')
                     print('Enabled craftbeerpi service')
@@ -188,7 +203,6 @@ class CraftBeerPiCli():
                 print(e)
                 return
             return
-
     def chromium(self, name):
         '''Enable or disable autostart'''
         if(name == "status"):
