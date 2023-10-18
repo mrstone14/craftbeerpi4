@@ -151,6 +151,9 @@ class CraftBeerPiCli():
                 print("CraftBeerPi Autostart is {}OFF{}".format(Fore.RED,Style.RESET_ALL))
         elif(name == "on"):
             user=os.getlogin()
+            path="/usr/local/bin/cbpi start"
+            if os.path.exists("/home/"+user+"/.local/bin/cbpi") is True:
+                    path="/home/"+user+"/.local/bin/cbpi start"
             print("Add craftbeerpi.service to systemd")
             try:
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is False:
@@ -166,7 +169,7 @@ class CraftBeerPiCli():
                         srcfile=str(srcfile).replace('\\','/')
 
                     template = templateEnv.get_template("craftbeerpi.service")
-                    outputText = template.render(user=user)
+                    outputText = template.render(user=user, path=path)
                     with open(srcfile, "w") as fh:
                         fh.write(outputText)
                     destfile = os.path.join("/etc/systemd/system")
