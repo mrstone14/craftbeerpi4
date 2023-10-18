@@ -106,7 +106,7 @@ class ConfigFolder:
         ]
         for checking in required_config_content:
             if self.inform_missing_content(self.check_for_file_or_folder(os.path.join(self.configFolderPath, checking[0]), checking[1])):
-                # since there is no complete config we now check if the config folde rmay be completely empty to show hints:
+                # since there is no complete config we now check if the config folder may be completely empty to show hints:
                 if len(os.listdir(os.path.join(self.configFolderPath))) == 0 :
                     print("***************************************************")
                     print(f"the config folder '{self.configFolderPath}' seems to be completely empty")
@@ -118,7 +118,7 @@ class ConfigFolder:
                     print("***************************************************")
                 return False
         
-        # if cbpi_dashboard_1.json doesnt exist at the new location (configFolderPath/dashboard)
+        # if cbpi_dashboard_1.json does'nt exist at the new location (configFolderPath/dashboard)
         # we move every cbpi_dashboard_n.json file from the old location (configFolderPath) there.
         # this could be a config zip file restore from version 4.0.7.a4 or prior.
         dashboard_1_path = os.path.join(self.configFolderPath, 'dashboard', 'cbpi_dashboard_1.json')
@@ -132,7 +132,7 @@ class ConfigFolder:
         try:
             with open(dashboard_1_path, 'r') as f:
                 data = json.load(f)
-            if (len(data['elements']) == 0):  # there may exist some pathes but pathes without elements in dashboard is not very likely
+            if (len(data['elements']) == 0):  # there may exist some paths but paths without elements in dashboard is not very likely
                 return True
             else:
                 return False
@@ -141,6 +141,11 @@ class ConfigFolder:
     
     def inform_missing_content(self, whatsmissing : str):
         if whatsmissing == "":
+            return False
+        # Starting with cbpi 4.2.0, the craftbeerpi.service file will be created dynamically from the template file based on the user id.
+        # Therefore, the service file is replaced with a template file in the config folder
+        if whatsmissing.find("craftbeerpi.template"):
+            self.copyDefaultFileIfNotExists("craftbeerpi.template")
             return False
         print("***************************************************")
         print(f"CraftBeerPi config content not found: {whatsmissing}")
