@@ -151,9 +151,9 @@ class CraftBeerPiCli():
                 print("CraftBeerPi Autostart is {}OFF{}".format(Fore.RED,Style.RESET_ALL))
         elif(name == "on"):
             user=os.getlogin()
-            path="/usr/local/bin/cbpi start"
+            path="/usr/local/bin/cbpi"
             if os.path.exists("/home/"+user+"/.local/bin/cbpi") is True:
-                    path="/home/"+user+"/.local/bin/cbpi start"
+                    path="/home/"+user+"/.local/bin/cbpi"
             print("Add craftbeerpi.service to systemd")
             try:
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is False:
