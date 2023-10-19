@@ -38,8 +38,11 @@ class CraftBeerPiCli():
 
     def setup_one_wire(self):
         print("Setting up 1Wire")
-        with open('/boot/config.txt', 'w') as f:
-            f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+        with open('/boot/config.txt', 'r') as f:
+            lines=f.readlines()
+            #f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+            
+        print(lines)
         print("/boot/config.txt created")
 
     def list_one_wire(self):
