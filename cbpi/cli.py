@@ -41,8 +41,15 @@ class CraftBeerPiCli():
         with open('/boot/config.txt', 'r') as f:
             lines=f.readlines()
             #f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+        active=False
+        for line in lines:    
+            print(line)
+            if line.find("dtoverlay=w1-gpio"):
+                active=True
+        if not active:
+            lines.append("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+            print("Added w1-gpio")
             
-        print(lines)
         print("/boot/config.txt created")
 
     def list_one_wire(self):
