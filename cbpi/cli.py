@@ -42,16 +42,15 @@ class CraftBeerPiCli():
             lines=f.readlines()
             #f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
         lines.append("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
-
-        for line in lines:    
-            print(line)
-    
-        configtemppath=os.path.join(self.config.get_file_path(""),"config.txt")
-        print(configtemppath)
-
-        with open(configtemppath, 'w') as f:
+   
+        configtempfile=os.path.join(self.config.get_file_path(""),"config.txt")
+        
+        with open(configtempfile, 'w') as f:
             for line in lines:
                 f.write(line)
+        destfile="/boot/config.txt"
+
+        shutil.os.system('sudo mv "{}" "{}"'.format(configtempfile,destfile))
 
         print("/boot/config.txt created")
 
