@@ -50,7 +50,7 @@ class CraftBeerPiCli():
                 f.write(line)
         destfile="/boot/config.txt"
 
-        shutil.os.system('sudo mv "{}" "{}"'.format(configtempfile,destfile))
+        shutil.os.system('sudo cp "{}" "{}"'.format(configtempfile,destfile))
 
         print("/boot/config.txt created")
 
