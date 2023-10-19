@@ -46,6 +46,12 @@ class CraftBeerPiCli():
         for line in lines:    
             print(line)
     
+        configtemppath=os.path.join(self.config.get_file_path(""),"config.txt")
+        print(configtemppath)
+
+        with open(configtemppath, 'w') as f:
+            f.write(lines)
+
         print("/boot/config.txt created")
 
     def list_one_wire(self):
