@@ -50,7 +50,9 @@ class CraftBeerPiCli():
                 f.write(line)
         destfile="/boot/config.txt"
 
+        #copy and remove afterwards as mv will work, but raise an error message due to different file owners
         shutil.os.system('sudo cp "{}" "{}"'.format(configtempfile,destfile))
+        shutil.os.system('rm -rf "{}"'.format(configtempfile))
 
         print("/boot/config.txt created")
 
