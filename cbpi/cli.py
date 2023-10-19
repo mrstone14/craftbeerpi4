@@ -50,7 +50,8 @@ class CraftBeerPiCli():
         print(configtemppath)
 
         with open(configtemppath, 'w') as f:
-            f.write(lines)
+            for line in lines:
+                f.write(line)
 
         print("/boot/config.txt created")
 
