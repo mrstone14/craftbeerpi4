@@ -38,14 +38,28 @@ class CraftBeerPiCli():
 
     def setup_one_wire(self):
         print("Setting up 1Wire")
-        with open('/boot/config.txt', 'w') as f:
-            f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+        with open('/boot/config.txt', 'r') as f:
+            lines=f.readlines()
+            #f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+        lines.append("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+   
+        configtempfile=os.path.join(self.config.get_file_path(""),"config.txt")
+        
+        with open(configtempfile, 'w') as f:
+            for line in lines:
+                f.write(line)
+        destfile="/boot/config.txt"
+
+        #copy and remove afterwards as mv will work, but raise an error message due to different file owners
+        shutil.os.system('sudo cp "{}" "{}"'.format(configtempfile,destfile))
+        shutil.os.system('rm -rf "{}"'.format(configtempfile))
+
         print("/boot/config.txt created")
 
     def list_one_wire(self):
         print("List 1Wire")
-        call(["modprobe", "w1-gpio"])
-        call(["modprobe", "w1-therm"])
+        call(["sudo","modprobe", "w1-gpio"])
+        call(["sudo","modprobe", "w1-therm"])
         try:
             for dirname in os.listdir('/sys/bus/w1/devices'):
                 if (dirname.startswith("28") or dirname.startswith("10")):
@@ -150,16 +164,34 @@ class CraftBeerPiCli():
             else:
                 print("CraftBeerPi Autostart is {}OFF{}".format(Fore.RED,Style.RESET_ALL))
         elif(name == "on"):
+            user=os.getlogin()
+            path="/usr/local/bin/cbpi"
+            if os.path.exists("/home/"+user+"/.local/bin/cbpi") is True:
+                    path="/home/"+user+"/.local/bin/cbpi"
             print("Add craftbeerpi.service to systemd")
             try:
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is False:
+                    templatefile=self.config.get_file_path("craftbeerpi.template")
+                    shutil.os.system('cp "{}" "{}"'.format(templatefile,self.config.get_file_path("craftbeerpi.service")))
                     srcfile = self.config.get_file_path("craftbeerpi.service")
+                    import jinja2
+
+                    templateLoader = jinja2.FileSystemLoader(searchpath=os.path.join(self.config.get_file_path("")))
+                    templateEnv = jinja2.Environment(loader=templateLoader)
+                    operatingsystem = str(platform.system()).lower()
+                    if operatingsystem.startswith("win"):
+                        srcfile=str(srcfile).replace('\\','/')
+
+                    template = templateEnv.get_template("craftbeerpi.service")
+                    outputText = template.render(user=user, path=path)
+                    with open(srcfile, "w") as fh:
+                        fh.write(outputText)
                     destfile = os.path.join("/etc/systemd/system")
-                    shutil.copy(srcfile, destfile)
+                    shutil.os.system('sudo mv "{}" "{}"'.format(srcfile,destfile))
                     print("Copied craftbeerpi.service to /etc/systemd/system")
-                    os.system('systemctl enable craftbeerpi.service')
+                    shutil.os.system('sudo systemctl enable craftbeerpi.service')
                     print('Enabled craftbeerpi service')
-                    os.system('systemctl start craftbeerpi.service')
+                    shutil.os.system('sudo systemctl start craftbeerpi.service')
                     print('Started craftbeerpi.service')
                 else:
                     print("craftbeerpi.service is already located in /etc/systemd/system")
@@ -167,20 +199,20 @@ class CraftBeerPiCli():
                 print(e)
                 return
             return
-        elif(name == "off"): 
+        elif(name == "off"):
             print("Remove craftbeerpi.service from systemd")
             try:
                 status = os.popen('systemctl list-units --type=service --state=running | grep craftbeerpi.service').read()
                 if status.find("craftbeerpi.service") != -1:
-                    os.system('systemctl stop craftbeerpi.service')
+                    shutil.os.system('sudo systemctl stop craftbeerpi.service')
                     print('Stopped craftbeerpi service')
-                    os.system('systemctl disable craftbeerpi.service')
+                    shutil.os.system('sudo systemctl disable craftbeerpi.service')
                     print('Removed craftbeerpi.service as service')
                 else:
                     print('craftbeerpi.service service is not running')
 
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is True:
-                    os.remove(os.path.join("/etc/systemd/system","craftbeerpi.service")) 
+                    shutil.os.system('sudo rm -rf "{}"'.format(os.path.join("/etc/systemd/system","craftbeerpi.service")))
                     print("Deleted craftbeerpi.service from /etc/systemd/system")
                 else:
                     print("craftbeerpi.service is not located in /etc/systemd/system")
@@ -188,8 +220,6 @@ class CraftBeerPiCli():
                 print(e)
                 return
             return
-
-
     def chromium(self, name):
         '''Enable or disable autostart'''
         if(name == "status"):
@@ -203,7 +233,7 @@ class CraftBeerPiCli():
                 if os.path.exists(os.path.join("/etc/xdg/autostart/","chromium.desktop")) is False:
                     srcfile = self.config.get_file_path("chromium.desktop")
                     destfile = os.path.join("/etc/xdg/autostart/")
-                    shutil.copy(srcfile, destfile)
+                    shutil.os.system('sudo cp "{}" "{}"'.format(srcfile,destfile))
                     print("Copied chromium.desktop to /etc/xdg/autostart/")
                 else:
                     print("chromium.desktop is already located in /etc/xdg/autostart/")
@@ -215,7 +245,7 @@ class CraftBeerPiCli():
             print("Remove chromium.desktop from /etc/xdg/autostart/")
             try:
                 if os.path.exists(os.path.join("/etc/xdg/autostart/","chromium.desktop")) is True:
-                    os.remove(os.path.join("/etc/xdg/autostart/","chromium.desktop"))
+                    shutil.os.system('sudo rm -rf "{}"'.format(os.path.join("/etc/xdg/autostart/","chromium.desktop")))
                     print("Deleted chromium.desktop from /etc/xdg/autostart/")
                 else:
                     print("chromium.desktop is not located in /etc/xdg/autostart/")

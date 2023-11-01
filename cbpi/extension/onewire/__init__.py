@@ -170,7 +170,7 @@ def setup(cbpi):
     cbpi.plugin.register("OneWire", OneWire)
     try:
         # Global Init
-        call(["modprobe", "w1-gpio"])
-        call(["modprobe", "w1-therm"])
+        call(["sudo","modprobe", "w1-gpio"])
+        call(["sudo","modprobe", "w1-therm"])
     except Exception as e:
         pass
