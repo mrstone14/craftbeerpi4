@@ -4,7 +4,6 @@ from tests.cbpi_config_fixture import CraftBeerPiTestCase
 
 class SensorTestCase(CraftBeerPiTestCase):
 
-    @unittest_run_loop
     async def test_crud(self):
 
         data = {

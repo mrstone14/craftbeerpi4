@@ -4,7 +4,6 @@ from tests.cbpi_config_fixture import CraftBeerPiTestCase
 
 class StepTestCase(CraftBeerPiTestCase):
 
-    @unittest_run_loop
     async def test_get(self):
 
         resp = await self.client.request("GET", "/step2")
@@ -12,7 +11,6 @@ class StepTestCase(CraftBeerPiTestCase):
         assert resp.status == 200
 
 
-    @unittest_run_loop
     async def test_crud(self):
         data = {
             "name": "Test",

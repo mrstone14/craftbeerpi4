@@ -40,7 +40,6 @@ class CraftBeerPiCli():
         print("Setting up 1Wire")
         with open('/boot/config.txt', 'r') as f:
             lines=f.readlines()
-            #f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
         lines.append("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
    
         configtempfile=os.path.join(self.config.get_file_path(""),"config.txt")
