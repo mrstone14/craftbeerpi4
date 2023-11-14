@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 import requests
+from cbpi import __version__, __codename__
 from cbpi.configFolder import ConfigFolder
 from cbpi.utils.utils import load_config
 from zipfile import ZipFile
@@ -258,16 +259,26 @@ class CraftBeerPiCli():
 @click.pass_context
 @click.option('--config-folder-path', '-c', default="./config", type=click.Path(), help="Specify where the config folder is located. Defaults to './config'.")
 @click.option('--logs-folder-path', '-l', default="", type=click.Path(), help="Specify where the log folder is located. Defaults to '../logs' relative from the config folder.")
-@click.option('--debug-log-level', '-d', default="30", type=int,  help="Specify the log level you want to write to all logs. 0=ALL, 10=DEBUG, 20=INFO 30(default)=WARNING, 40=ERROR, 50=CRITICAL")
+@click.option('--debug-log-level', '-d', default="99", type=int,  help="Specify the log level you want to write to all logs. 0=ALL, 10=DEBUG, 20=INFO 30(default)=WARNING, 40=ERROR, 50=CRITICAL. Can be also set in config.yaml (debug-log-level: INT)")
 def main(context, config_folder_path, logs_folder_path, debug_log_level):
-    print("---------------------")
-    print("Welcome to CBPi")
-    print("---------------------")
+    print("--------------------------")
+    print("Welcome to CBPi "+__version__)
+    print("--------------------------")
     if logs_folder_path == "":
         logs_folder_path = os.path.join(Path(config_folder_path).absolute().parent, 'logs')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+    static_config = load_config(ConfigFolder(config_folder_path, logs_folder_path).get_file_path("config.yaml"))
+    try:
+        if debug_log_level == 99:
+            debug_log_level=static_config['debug-log-level']
+    except:
+        debug_log_level=30
+
     logging.basicConfig(format=formatter, stream=logging.StreamHandler())
     logger = logging.getLogger()
+    print("*******************************")
+    print("Set Debug-log-level to {}".format(debug_log_level))
+    print("*******************************")
     logger.setLevel(debug_log_level)
     try:
         if not os.path.isdir(logs_folder_path):
@@ -292,7 +303,7 @@ def setup(context):
 @click.option('--list', is_flag=True, help="List all 1Wire Devices")
 @click.option('--setup', is_flag=True, help="Setup 1Wire on Raspberry Pi")
 def onewire(context, list, setup):
-    '''Setup 1wire on Raspberry Pi'''
+    '''(--setup | --list) Setup 1wire on Raspberry Pi or list sensors'''
     if setup is True:
         context.obj.setup_one_wire()
     if list is True:
