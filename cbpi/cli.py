@@ -1,4 +1,5 @@
 import logging
+import sys
 from pathlib import Path
 import requests
 from cbpi import __version__, __codename__
@@ -267,7 +268,8 @@ def main(context, config_folder_path, logs_folder_path, debug_log_level):
     if logs_folder_path == "":
         logs_folder_path = os.path.join(Path(config_folder_path).absolute().parent, 'logs')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
-    static_config = load_config(ConfigFolder(config_folder_path, logs_folder_path).get_file_path("config.yaml"))
+    config=ConfigFolder(config_folder_path, logs_folder_path)
+    static_config = load_config(config.get_file_path("config.yaml"))
     try:
         if debug_log_level == 99:
             debug_log_level=static_config['debug-log-level']
@@ -277,7 +279,7 @@ def main(context, config_folder_path, logs_folder_path, debug_log_level):
     logging.basicConfig(format=formatter, stream=logging.StreamHandler())
     logger = logging.getLogger()
     print("*******************************")
-    print("Set Debug-log-level to {}".format(debug_log_level))
+    print("Debug-log-level is {}".format(debug_log_level))
     print("*******************************")
     logger.setLevel(debug_log_level)
     try:
@@ -289,7 +291,7 @@ def main(context, config_folder_path, logs_folder_path, debug_log_level):
     except Exception as e:
         logger.warning("log folder or log file could not be created or accessed. check folder and file permissions or create the logs folder somewhere you have access with a start option like '--log-folder-path=./logs'")
         logging.critical(e, exc_info=True)
-    cbpi_cli = CraftBeerPiCli(ConfigFolder(config_folder_path, logs_folder_path))
+    cbpi_cli = CraftBeerPiCli(config)
     context.obj = cbpi_cli
 
 @main.command()
@@ -304,10 +306,14 @@ def setup(context):
 @click.option('--setup', is_flag=True, help="Setup 1Wire on Raspberry Pi")
 def onewire(context, list, setup):
     '''(--setup | --list) Setup 1wire on Raspberry Pi or list sensors'''
-    if setup is True:
-        context.obj.setup_one_wire()
-    if list is True:
-        context.obj.list_one_wire()
+    operationsystem= sys.platform
+    if not operationsystem.startswith('win'):
+        if setup is True:
+            context.obj.setup_one_wire()
+        if list is True:
+            context.obj.list_one_wire()
+    else:
+        print("Onewire options NOT available under Windows")
 
 @main.command()
 @click.pass_context
@@ -337,7 +343,11 @@ def create(context, pluginname=[]):
 @click.argument('name')
 def autostart(context, name):
     '''(on|off|status) Enable or disable autostart'''
-    context.obj.autostart(name)
+    operationsystem= sys.platform
+    if not operationsystem.startswith('win'):
+        context.obj.autostart(name)
+    else:
+        print("Autostart option NOT available under Windows")
 
 
 @main.command()
@@ -345,4 +355,8 @@ def autostart(context, name):
 @click.argument('name')
 def chromium(context, name):
     '''(on|off|status) Enable or disable Kiosk mode'''
-    context.obj.chromium(name)
+    operationsystem= sys.platform
+    if not operationsystem.startswith('win'):
+        context.obj.chromium(name)
+    else:
+        print("Chromium option NOT available under Windows")        
