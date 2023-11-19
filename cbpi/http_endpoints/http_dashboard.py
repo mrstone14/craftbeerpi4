@@ -156,6 +156,40 @@ class DashBoardHttpEndpoints:
         """
         dashboard_id = int(request.match_info['id'])
         return web.json_response(await self.cbpi.dashboard.set_current_dashboard(dashboard_id))
+    
+    @request_mapping(path="/currentgrid", method="GET", auth_required=False)
+    async def get_current_grid(self, request):
+        """
+        ---
+        description: Get Dashboard Numbers
+        tags:
+        - Dashboard
+        responses:
+            "200":
+                description: successful operation
+        """
+        return web.json_response(await self.cbpi.dashboard.get_current_grid(), dumps=json_dumps)
+    
+    @request_mapping(path="/{width}/currentgrid", method="POST", auth_required=False)
+    async def set_current_grid(self, request):
+        """
+        ---
+        description: Set Current Grid Width
+        tags:
+        - Dashboard
+        parameters:
+        - name: "width"
+          in: "path"
+          description: "Grid Width"
+          required: true
+          type: "integer"
+          format: "int64"
+        responses:
+            "200":
+                description: successful operation
+        """
+        grid_width = int(request.match_info['width'])
+        return web.json_response(await self.cbpi.dashboard.set_current_grid(grid_width))
 
     @request_mapping(path="/slowPipeAnimation", method="GET", auth_required=False)
     async def get_slow_pipe_animation(self, request):

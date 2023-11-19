@@ -60,11 +60,19 @@ class DashboardController:
     async def get_current_dashboard(self):
         current_dashboard_number = self.cbpi.config.get("current_dashboard_number", 1)
         return current_dashboard_number
-
+        
     async def set_current_dashboard(self, dashboard_id=1):
         await self.cbpi.config.set("current_dashboard_number", dashboard_id)
         return {"status": "OK"}
 
+    async def get_current_grid(self):
+        current_grid = self.cbpi.config.get("current_grid", 5)
+        return current_grid
+
+    async def set_current_grid(self, grid_width=5):
+        await self.cbpi.config.set("current_grid", grid_width)
+        return {"status": "OK"}
+    
     async def get_slow_pipe_animation(self):
         slow_pipe_animation = self.cbpi.config.get("slow_pipe_animation", "Yes")
         return slow_pipe_animation

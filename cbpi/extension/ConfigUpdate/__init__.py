@@ -64,6 +64,7 @@ class ConfigUpdate(CBPiExtension):
         BoilKettle = self.cbpi.config.get("BoilKettle", None)
         CONFIG_STATUS = self.cbpi.config.get("CONFIG_STATUS", None)
         self.version=__version__
+        current_grid = self.cbpi.config.get("current_grid", None)
 
 
         if boil_temp is None:
@@ -491,6 +492,16 @@ class ConfigUpdate(CBPiExtension):
                                                                                                 source="steps",
                                                                                                 options=[{"label": "Yes", "value": "Yes"},
                                                                                                 {"label": "No", "value": "No"}])
+
+        if current_grid is None:
+            logger.info("INIT Current Dashboard Number")
+            try:
+                await self.cbpi.config.add("current_grid", 5, type=ConfigType.NUMBER, description="Dashboard Grid Width",source="hidden")
+            except:
+                logger.warning('Unable to update database')
+        else: 
+            if CONFIG_STATUS is None or CONFIG_STATUS != self.version:
+                await self.cbpi.config.add("current_grid", current_grid, type=ConfigType.NUMBER, description="Dashboard Grid Width",source="hidden")
                                                                                                 
 
 
@@ -501,6 +512,8 @@ class ConfigUpdate(CBPiExtension):
                 await self.cbpi.config.add("CONFIG_STATUS", self.version, type=ConfigType.STRING, description="Status of the config file. Internal use for maintenance", source="hidden")
             except:
                 logger.warning('Unable to update config')
+
+
 
 
 def setup(cbpi):
