@@ -80,10 +80,10 @@
         "options": null,
         "source": "hidden",
         "type": "string",
-        "value": "4.1.10.a1"
+        "value": "4.2.0.a6"
     },
     "CSVLOGFILES": {
-        "description": "Write sensor data to csv logfiles",
+        "description": "Write sensor data to csv logfiles (enabling requires restart)",
         "name": "CSVLOGFILES",
         "options": [
             {
@@ -100,7 +100,7 @@
         "value": "Yes"
     },
     "INFLUXDB": {
-        "description": "Write sensor data to influxdb",
+        "description": "Write sensor data to influxdb (enabling requires restart)",
         "name": "INFLUXDB",
         "options": [
             {

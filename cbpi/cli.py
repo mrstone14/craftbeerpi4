@@ -1,6 +1,8 @@
 import logging
+import sys
 from pathlib import Path
 import requests
+from cbpi import __version__, __codename__
 from cbpi.configFolder import ConfigFolder
 from cbpi.utils.utils import load_config
 from zipfile import ZipFile
@@ -38,14 +40,27 @@ class CraftBeerPiCli():
 
     def setup_one_wire(self):
         print("Setting up 1Wire")
-        with open('/boot/config.txt', 'w') as f:
-            f.write("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+        with open('/boot/config.txt', 'r') as f:
+            lines=f.readlines()
+        lines.append("dtoverlay=w1-gpio,gpiopin=4,pullup=on")
+   
+        configtempfile=os.path.join(self.config.get_file_path(""),"config.txt")
+        
+        with open(configtempfile, 'w') as f:
+            for line in lines:
+                f.write(line)
+        destfile="/boot/config.txt"
+
+        #copy and remove afterwards as mv will work, but raise an error message due to different file owners
+        shutil.os.system('sudo cp "{}" "{}"'.format(configtempfile,destfile))
+        shutil.os.system('rm -rf "{}"'.format(configtempfile))
+
         print("/boot/config.txt created")
 
     def list_one_wire(self):
         print("List 1Wire")
-        call(["modprobe", "w1-gpio"])
-        call(["modprobe", "w1-therm"])
+        call(["sudo","modprobe", "w1-gpio"])
+        call(["sudo","modprobe", "w1-therm"])
         try:
             for dirname in os.listdir('/sys/bus/w1/devices'):
                 if (dirname.startswith("28") or dirname.startswith("10")):
@@ -150,16 +165,34 @@ class CraftBeerPiCli():
             else:
                 print("CraftBeerPi Autostart is {}OFF{}".format(Fore.RED,Style.RESET_ALL))
         elif(name == "on"):
+            user=os.getlogin()
+            path="/usr/local/bin/cbpi"
+            if os.path.exists("/home/"+user+"/.local/bin/cbpi") is True:
+                    path="/home/"+user+"/.local/bin/cbpi"
             print("Add craftbeerpi.service to systemd")
             try:
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is False:
+                    templatefile=self.config.get_file_path("craftbeerpi.template")
+                    shutil.os.system('cp "{}" "{}"'.format(templatefile,self.config.get_file_path("craftbeerpi.service")))
                     srcfile = self.config.get_file_path("craftbeerpi.service")
+                    import jinja2
+
+                    templateLoader = jinja2.FileSystemLoader(searchpath=os.path.join(self.config.get_file_path("")))
+                    templateEnv = jinja2.Environment(loader=templateLoader)
+                    operatingsystem = str(platform.system()).lower()
+                    if operatingsystem.startswith("win"):
+                        srcfile=str(srcfile).replace('\\','/')
+
+                    template = templateEnv.get_template("craftbeerpi.service")
+                    outputText = template.render(user=user, path=path)
+                    with open(srcfile, "w") as fh:
+                        fh.write(outputText)
                     destfile = os.path.join("/etc/systemd/system")
-                    shutil.copy(srcfile, destfile)
+                    shutil.os.system('sudo mv "{}" "{}"'.format(srcfile,destfile))
                     print("Copied craftbeerpi.service to /etc/systemd/system")
-                    os.system('systemctl enable craftbeerpi.service')
+                    shutil.os.system('sudo systemctl enable craftbeerpi.service')
                     print('Enabled craftbeerpi service')
-                    os.system('systemctl start craftbeerpi.service')
+                    shutil.os.system('sudo systemctl start craftbeerpi.service')
                     print('Started craftbeerpi.service')
                 else:
                     print("craftbeerpi.service is already located in /etc/systemd/system")
@@ -167,20 +200,20 @@ class CraftBeerPiCli():
                 print(e)
                 return
             return
-        elif(name == "off"): 
+        elif(name == "off"):
             print("Remove craftbeerpi.service from systemd")
             try:
                 status = os.popen('systemctl list-units --type=service --state=running | grep craftbeerpi.service').read()
                 if status.find("craftbeerpi.service") != -1:
-                    os.system('systemctl stop craftbeerpi.service')
+                    shutil.os.system('sudo systemctl stop craftbeerpi.service')
                     print('Stopped craftbeerpi service')
-                    os.system('systemctl disable craftbeerpi.service')
+                    shutil.os.system('sudo systemctl disable craftbeerpi.service')
                     print('Removed craftbeerpi.service as service')
                 else:
                     print('craftbeerpi.service service is not running')
 
                 if os.path.exists(os.path.join("/etc/systemd/system","craftbeerpi.service")) is True:
-                    os.remove(os.path.join("/etc/systemd/system","craftbeerpi.service")) 
+                    shutil.os.system('sudo rm -rf "{}"'.format(os.path.join("/etc/systemd/system","craftbeerpi.service")))
                     print("Deleted craftbeerpi.service from /etc/systemd/system")
                 else:
                     print("craftbeerpi.service is not located in /etc/systemd/system")
@@ -188,8 +221,6 @@ class CraftBeerPiCli():
                 print(e)
                 return
             return
-
-
     def chromium(self, name):
         '''Enable or disable autostart'''
         if(name == "status"):
@@ -203,7 +234,7 @@ class CraftBeerPiCli():
                 if os.path.exists(os.path.join("/etc/xdg/autostart/","chromium.desktop")) is False:
                     srcfile = self.config.get_file_path("chromium.desktop")
                     destfile = os.path.join("/etc/xdg/autostart/")
-                    shutil.copy(srcfile, destfile)
+                    shutil.os.system('sudo cp "{}" "{}"'.format(srcfile,destfile))
                     print("Copied chromium.desktop to /etc/xdg/autostart/")
                 else:
                     print("chromium.desktop is already located in /etc/xdg/autostart/")
@@ -215,7 +246,7 @@ class CraftBeerPiCli():
             print("Remove chromium.desktop from /etc/xdg/autostart/")
             try:
                 if os.path.exists(os.path.join("/etc/xdg/autostart/","chromium.desktop")) is True:
-                    os.remove(os.path.join("/etc/xdg/autostart/","chromium.desktop"))
+                    shutil.os.system('sudo rm -rf "{}"'.format(os.path.join("/etc/xdg/autostart/","chromium.desktop")))
                     print("Deleted chromium.desktop from /etc/xdg/autostart/")
                 else:
                     print("chromium.desktop is not located in /etc/xdg/autostart/")
@@ -229,16 +260,27 @@ class CraftBeerPiCli():
 @click.pass_context
 @click.option('--config-folder-path', '-c', default="./config", type=click.Path(), help="Specify where the config folder is located. Defaults to './config'.")
 @click.option('--logs-folder-path', '-l', default="", type=click.Path(), help="Specify where the log folder is located. Defaults to '../logs' relative from the config folder.")
-@click.option('--debug-log-level', '-d', default="30", type=int,  help="Specify the log level you want to write to all logs. 0=ALL, 10=DEBUG, 20=INFO 30(default)=WARNING, 40=ERROR, 50=CRITICAL")
+@click.option('--debug-log-level', '-d', default="99", type=int,  help="Specify the log level you want to write to all logs. 0=ALL, 10=DEBUG, 20=INFO 30(default)=WARNING, 40=ERROR, 50=CRITICAL. Can be also set in config.yaml (debug-log-level: INT)")
 def main(context, config_folder_path, logs_folder_path, debug_log_level):
-    print("---------------------")
-    print("Welcome to CBPi")
-    print("---------------------")
+    print("--------------------------")
+    print("Welcome to CBPi "+__version__)
+    print("--------------------------")
     if logs_folder_path == "":
         logs_folder_path = os.path.join(Path(config_folder_path).absolute().parent, 'logs')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+    config=ConfigFolder(config_folder_path, logs_folder_path)
+    static_config = load_config(config.get_file_path("config.yaml"))
+    try:
+        if debug_log_level == 99:
+            debug_log_level=static_config['debug-log-level']
+    except:
+        debug_log_level=30
+
     logging.basicConfig(format=formatter, stream=logging.StreamHandler())
     logger = logging.getLogger()
+    print("*******************************")
+    print("Debug-log-level is {}".format(debug_log_level))
+    print("*******************************")
     logger.setLevel(debug_log_level)
     try:
         if not os.path.isdir(logs_folder_path):
@@ -249,7 +291,7 @@ def main(context, config_folder_path, logs_folder_path, debug_log_level):
     except Exception as e:
         logger.warning("log folder or log file could not be created or accessed. check folder and file permissions or create the logs folder somewhere you have access with a start option like '--log-folder-path=./logs'")
         logging.critical(e, exc_info=True)
-    cbpi_cli = CraftBeerPiCli(ConfigFolder(config_folder_path, logs_folder_path))
+    cbpi_cli = CraftBeerPiCli(config)
     context.obj = cbpi_cli
 
 @main.command()
@@ -263,11 +305,15 @@ def setup(context):
 @click.option('--list', is_flag=True, help="List all 1Wire Devices")
 @click.option('--setup', is_flag=True, help="Setup 1Wire on Raspberry Pi")
 def onewire(context, list, setup):
-    '''Setup 1wire on Raspberry Pi'''
-    if setup is True:
-        context.obj.setup_one_wire()
-    if list is True:
-        context.obj.list_one_wire()
+    '''(--setup | --list) Setup 1wire on Raspberry Pi or list sensors'''
+    operationsystem= sys.platform
+    if not operationsystem.startswith('win'):
+        if setup is True:
+            context.obj.setup_one_wire()
+        if list is True:
+            context.obj.list_one_wire()
+    else:
+        print("Onewire options NOT available under Windows")
 
 @main.command()
 @click.pass_context
@@ -297,7 +343,11 @@ def create(context, pluginname=[]):
 @click.argument('name')
 def autostart(context, name):
     '''(on|off|status) Enable or disable autostart'''
-    context.obj.autostart(name)
+    operationsystem= sys.platform
+    if not operationsystem.startswith('win'):
+        context.obj.autostart(name)
+    else:
+        print("Autostart option NOT available under Windows")
 
 
 @main.command()
@@ -305,4 +355,8 @@ def autostart(context, name):
 @click.argument('name')
 def chromium(context, name):
     '''(on|off|status) Enable or disable Kiosk mode'''
-    context.obj.chromium(name)
+    operationsystem= sys.platform
+    if not operationsystem.startswith('win'):
+        context.obj.chromium(name)
+    else:
+        print("Chromium option NOT available under Windows")        

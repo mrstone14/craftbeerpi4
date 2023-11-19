@@ -260,9 +260,9 @@ class CraftBeerPi:
     def _print_logo(self):
         from pyfiglet import Figlet
         f = Figlet(font='big')
-        logger.info("\n%s" % f.renderText("CraftBeerPi %s " % self.version))
-        logger.info("www.CraftBeerPi.com")
-        logger.info("(c) 2021/2022 Manuel Fritsch / Alexander Vollkopf")
+        logger.warning("\n%s" % f.renderText("CraftBeerPi %s " % self.version))
+        logger.warning("www.CraftBeerPi.com")
+        logger.warning("(c) 2021/2022/2023 Manuel Fritsch / Alexander Vollkopf")
 
     def _setup_http_index(self):
         async def http_index(request):

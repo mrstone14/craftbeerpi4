@@ -219,12 +219,12 @@ class SystemController:
                     for nic, addrs in ethernet.items():
                         if nic == "eth0":
                             for addr in addrs:
-                                if str(addr.family) == "AddressFamily.AF_INET": 
+                                if str(addr.family) == "AddressFamily.AF_INET" or str(addr.family) == "2": 
                                     if addr.address:
                                         eth0IP = addr.address
                         if nic == "wlan0":
                             for addr in addrs:
-                                if str(addr.family) == "AddressFamily.AF_INET": 
+                                if str(addr.family) == "AddressFamily.AF_INET" or str(addr.family) == "2": 
                                     if addr.address:
                                         wlan0IP = addr.address
                     info = psutil.net_if_stats()

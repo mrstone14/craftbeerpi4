@@ -170,7 +170,7 @@ class UploadController:
             # load beerxml file located in upload folder
             self.path = self.cbpi.config_folder.get_upload_file("kbh.db")
             if os.path.exists(self.path) is False:
-                self.cbpi.notify("File Not Found", "Please upload a kbh V2 databsel file", NotificationType.ERROR)
+                self.cbpi.notify("File Not Found", "Please upload a kbh V2 database file", NotificationType.ERROR)
                 
             try:
                 # Get Recipe Nmae
@@ -179,19 +179,19 @@ class UploadController:
                 c.execute('SELECT Sudname FROM Sud WHERE ID = ?', (Recipe_ID,))
                 row = c.fetchone()
                 name = row[0]
-
                 # get MashIn Temp
                 mashin_temp = None
-                c.execute('SELECT Temp FROM Rasten WHERE Typ = 0 AND SudID = ?', (Recipe_ID,))
+                c.execute('SELECT TempWasser FROM Maischplan WHERE Typ = 0 AND SudID = ?', (Recipe_ID,))
                 row = c.fetchone()
                 try:
                     if self.cbpi.config.get("TEMP_UNIT", "C") == "C":
-                        mashin_temp = str(int(row[0]))
+                        mashin_temp = str(float(row[0]))
                     else:
-                        mashin_temp = str(round(9.0 / 5.0 * int(row[0]) + 32))
+                        mashin_temp = str(round(9.0 / 5.0 * float(row[0]) + 32))
                 except:
                     pass
-
+                
+                logging.error(mashin_temp)
                 # get the hop addition times
                 c.execute('SELECT Zeit, Name FROM Hopfengaben WHERE Vorderwuerze <> 1 AND SudID = ?', (Recipe_ID,))
                 hops = c.fetchall()
@@ -201,11 +201,9 @@ class UploadController:
                         whirlpool.append(hop)
                 for whirl in whirlpool:
                     hops.remove(whirl)
-
                 # get the misc addition times
                 c.execute('SELECT Zugabedauer, Name FROM WeitereZutatenGaben WHERE Zeitpunkt = 1 AND SudID = ?', (Recipe_ID,))
                 miscs = c.fetchall()
-
                 try:
                     c.execute('SELECT Zeit, Name FROM Hopfengaben WHERE Vorderwuerze = 1 AND SudID = ?', (Recipe_ID,))
                     FW_Hops = c.fetchall()
@@ -216,9 +214,7 @@ class UploadController:
                 c.execute('SELECT Kochdauer FROM Sud WHERE ID = ?', (Recipe_ID,))
                 row = c.fetchone()
                 BoilTime = str(int(row[0]))
-
-
-
+                
                 await self.create_recipe(name)
 
                 if mashin_temp is not None:
@@ -238,7 +234,7 @@ class UploadController:
                                     }
                     await self.create_step(step_string)
 
-                for row in c.execute('SELECT Name, Temp, Dauer FROM Rasten WHERE Typ <> 0 AND SudID = ?', (Recipe_ID,)):
+                for row in c.execute('SELECT Name, TempRast, DauerRast FROM Maischplan WHERE Typ <> 0 AND SudID = ?', (Recipe_ID,)):
                     if mashin_temp is None and self.addmashin == "Yes":
                         step_type = self.mashin if self.mashin != "" else "MashInStep"
                         step_string = { "name": "MashIn",
@@ -246,7 +242,7 @@ class UploadController:
                                         "AutoMode": self.AutoMode,
                                         "Kettle": self.id,
                                         "Sensor": self.kettle.sensor,
-                                        "Temp": str(int(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * int(row[1]) + 32)),
+                                        "Temp": str(float(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * float(row[1]) + 32)),
                                         "Timer": "0",
                                         "Notification": "Target temperature reached. Please add malt."
                                         },
@@ -263,7 +259,7 @@ class UploadController:
                                         "AutoMode": self.AutoMode,
                                         "Kettle": self.id,
                                         "Sensor": self.kettle.sensor,
-                                        "Temp": str(int(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * int(row[1]) + 32)),
+                                        "Temp": str(float(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * float(row[1]) + 32)),
                                         "Timer": str(int(row[2]))
                                         },
                                     "status_text": "",

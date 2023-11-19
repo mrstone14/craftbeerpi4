@@ -4,7 +4,6 @@ from tests.cbpi_config_fixture import CraftBeerPiTestCase
 
 class IndexTestCase(CraftBeerPiTestCase):
 
-    @unittest_run_loop
     async def test_endpoints(self):
         # Test Index Page
         resp = await self.client.post(path="/system/restart")
