@@ -1,3 +1,3 @@
-__version__ = "4.2.0"
-__codename__ = "Indian Summer"
+__version__ = "4.3.0.a1"
+__codename__ = "Winter Storm"
 
