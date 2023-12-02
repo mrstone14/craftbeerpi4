@@ -63,7 +63,7 @@ setup(name='cbpi4',
           'importlib_metadata',
           'numpy==1.24.1',
           'pandas==1.5.3'] + (
-          ['RPi.GPIO==0.7.1','gpiozero==2.0'] if raspberrypi else [] ),
+          ['rpi-lgpio'] if raspberrypi else [] ),
 
         dependency_links=[
         'https://testpypi.python.org/pypi',
