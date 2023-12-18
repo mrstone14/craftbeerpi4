@@ -8,7 +8,7 @@ from os import popen, path
 localsystem = platform.system()
 raspberrypi=False
 if localsystem == "Linux":
-    command="cat /proc/cpuinfo | grep Raspberry"
+    command="cat /proc/cpuinfo | grep 'Raspberry'"
     model=popen(command).read()
     if len(model) != 0:
         raspberrypi=True
@@ -39,15 +39,15 @@ setup(name='cbpi4',
 	    long_description_content_type='text/markdown',
       install_requires=[
           "typing-extensions>=4",
-          "aiohttp==3.8.6",
+          "aiohttp==3.9.1",
           "aiohttp-auth==0.1.1",
           "aiohttp-route-decorator==0.1.4",
-          "aiohttp-security==0.4.0",
+          "aiohttp-security==0.5.0",
           "aiohttp-session==2.12.0",
           "aiohttp-swagger==1.0.16",
-          "aiojobs==1.1.0 ",
+          "aiojobs==1.2.1 ",
           "aiosqlite==0.17.0",
-          "cryptography==41.0.5",
+          "cryptography==41.0.7",
           "pyopenssl==23.3.0",
           "requests==2.31.0",
           "voluptuous==0.13.1",
