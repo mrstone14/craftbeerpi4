@@ -1,11 +1,8 @@
 import logging
 import os
-import importlib, importlib_metadata
-#from importlib_metadata import metadata
-import pkgutil
 import shutil
+import pkgutil
 import psutil
-from tabulate import tabulate
 import pathlib
 import json
 import aiohttp
@@ -16,6 +13,8 @@ from cbpi.api.config import ConfigType
 from cbpi.api import *
 import zipfile
 import socket
+import importlib
+from tabulate import tabulate
 
 class SystemController:
 
@@ -45,6 +44,26 @@ class SystemController:
         dir_name = pathlib.Path(self.cbpi.config_folder.get_file_path(''))
         shutil.make_archive(output_filename, 'zip', dir_name)
 
+    async def plugins_list(self): 
+        result = []
+        discovered_plugins = {
+            name: importlib.import_module(name)
+            for finder, name, ispkg
+            in pkgutil.iter_modules()
+            if name.startswith('cbpi') and len(name) > 4
+        }
+        for key, module in discovered_plugins.items():
+            from importlib.metadata import version
+            try:
+                from importlib.metadata import (distribution, metadata,
+                                                    version)
+                meta = metadata(key)
+                result.append(dict(Name=meta["Name"], Version=meta["Version"], Author=meta["Author"], Homepage=meta["Home-page"], Summary=meta["Summary"]))
+                            
+            except Exception as e:
+                print(e)
+        return tabulate(result, headers="keys")
+
     async def downloadlog(self, logtime):
         filename = "cbpi4.log"
         fullname = pathlib.Path(os.path.join(".",filename))
@@ -64,11 +83,12 @@ class SystemController:
         else:
             os.system('journalctl --since \"{} hours ago\" -u craftbeerpi.service --output cat > {}'.format(logtime, fullname))
 
-        plugins=self.plugins_list()
-        with open(fullpluginname) as f:
+        plugins = await self.plugins_list()
+
+        with open(fullpluginname, 'w') as f:
             f.write(plugins)
 
-        #os.system('cbpi plugins > {}'.format(fullpluginname))
+        #os.system('echo "{}" >> {}'.format(plugins,fullpluginname))
 
         try:
             actors = self.cbpi.actor.get_state()
@@ -112,25 +132,6 @@ class SystemController:
             shutil.chown(dirpath, owner, group)
             for filename in filenames:
                 shutil.chown(os.path.join(dirpath, filename), owner, group)
-
-    def plugins_list(self):
-        result = []
-
-        discovered_plugins = {
-            name: importlib.import_module(name)
-            for finder, name, ispkg
-            in pkgutil.iter_modules()
-            if name.startswith('cbpi') and len(name) > 4
-        }
-        for key, module in discovered_plugins.items():
-            try:
-                meta = importlib_metadata.metadata(key)
-                result.append(dict(Name=meta["Name"], Version=meta["Version"], Author=meta["Author"], Homepage=meta["Home-page"], Summary=meta["Summary"]))
-                            
-            except Exception as e:
-                print(e)
-        #print(tabulate(result, headers="keys"))
-        return tabulate(result, headers="keys")
 
     async def restoreConfig(self, data):
         fileData = data['File']
