@@ -156,14 +156,14 @@ class StepController:
         logging.info("BREWING COMPLETE")
     
     async def previous(self):
-        logging.info("Trigger Next")
+        logging.info("Trigger Previous")
 
 
     async def next(self):
         logging.info("Trigger Next")
-        print("\n\n\n\n")
-        print(self.profile)
-        print("\n\n\n\n")
+        #print("\n\n\n\n")
+        #print(self.profile)
+        #print("\n\n\n\n")
         step = self.find_by_status(StepState.ACTIVE)
         if step is not None:
             if step.instance is not None:
