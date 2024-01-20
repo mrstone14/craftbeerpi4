@@ -304,4 +304,7 @@ class CraftBeerPi:
         return self.app
 
     def start(self):
-        web.run_app(self.init_serivces(), port=self.static_config.get("port", 2202))
+        try:
+            web.run_app(self.init_serivces(), port=self.static_config.get("port", 2202))
+        except Exception as e:
+            print("Error Starting the server: {}".format(e))
