@@ -107,16 +107,24 @@ class ConfigFolder:
         for checking in required_config_content:
             if self.inform_missing_content(self.check_for_file_or_folder(os.path.join(self.configFolderPath, checking[0]), checking[1])):
                 # since there is no complete config we now check if the config folder may be completely empty to show hints:
-                if len(os.listdir(os.path.join(self.configFolderPath))) == 0 :
-                    print("***************************************************")
-                    print(f"the config folder '{self.configFolderPath}' seems to be completely empty")
-                    print("you might want to run 'cbpi setup'.print")
-                    print("but you could also place your zipped config backup named")
-                    print("'restored_config.zip' inside the mentioned config folder for")
-                    print("cbpi4 to automatically unpack it")
-                    print("of course you can also place your config files manually")
-                    print("***************************************************")
-                return False
+                try:
+                    if len(os.listdir(os.path.join(self.configFolderPath))) == 0 :
+                        print("***************************************************")
+                        print(f"the config folder '{self.configFolderPath}' seems to be completely empty")
+                        print("you might want to run 'cbpi setup'.print")
+                        print("but you could also place your zipped config backup named")
+                        print("'restored_config.zip' inside the mentioned config folder for")
+                        print("cbpi4 to automatically unpack it")
+                        print("of course you can also place your config files manually")
+                        print("***************************************************")
+                    return False
+                except:
+                        print("***************************************************")
+                        print("Cannot find config folder!")
+                        print("Please navigate to path where you did run 'cbpi setup'.")
+                        print("Or run 'cbpi setup' before starting the server.")
+                        print("***************************************************")
+                        return False
         
         # if cbpi_dashboard_1.json does'nt exist at the new location (configFolderPath/dashboard)
         # we move every cbpi_dashboard_n.json file from the old location (configFolderPath) there.
@@ -145,8 +153,11 @@ class ConfigFolder:
         # Starting with cbpi 4.2.0, the craftbeerpi.service file will be created dynamically from the template file based on the user id.
         # Therefore, the service file is replaced with a template file in the config folder
         if whatsmissing.find("craftbeerpi.template"):
-            self.copyDefaultFileIfNotExists("craftbeerpi.template")
-            return False
+            try:
+                self.copyDefaultFileIfNotExists("craftbeerpi.template")
+                return False
+            except: 
+                pass
         print("***************************************************")
         print(f"CraftBeerPi config content not found: {whatsmissing}")
         print("Please run 'cbpi setup' before starting the server ")
