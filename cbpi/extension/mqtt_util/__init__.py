@@ -37,6 +37,11 @@ class MQTTUtil(CBPiExtension):
             self.push_update()
             await asyncio.sleep(self.mqttupdate)
 
+    def remove_key(self,d, key):
+        r = dict(d)
+        del r[key]
+        return r
+
     def push_update(self):
 #        try:
 #            self.actor=self.actorcontroller.get_state()
@@ -61,8 +66,9 @@ class MQTTUtil(CBPiExtension):
             pass
         try:
             self.fermenter=self.fermentationcontroller.get_state()
-            for item in self.fermenter['data']:
-                self.cbpi.push_update("cbpi/{}/{}".format("fermenterupdate",item['id']), item)
+            for item in self.fermenter['data']: 
+                item_new=self.remove_key(item,"steps")
+                self.cbpi.push_update("cbpi/{}/{}".format("fermenterupdate",item['id']), item_new)
         except Exception as e:
             logging.error(e)
             pass
