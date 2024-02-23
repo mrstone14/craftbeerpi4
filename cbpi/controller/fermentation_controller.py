@@ -545,12 +545,19 @@ class FermentationController:
 
             # send mqtt update for active femrentersteps
             for fermenter in fermentersteps:
+                active = False
                 for step in fermenter['steps']:
                     if step['status'] == 'A':
+                        active=True
+                        active_step=step
 #                        self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), step)
-                        self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), step)
                     #else:
-                    #    self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), "")
+                    #    self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), "")
+                if active:
+                    self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), active_step)
+                else:
+                    self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), "")
+
                         
         
     async def call_action(self, id, action, parameter) -> None:
