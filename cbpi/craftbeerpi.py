@@ -1,6 +1,7 @@
 
 import asyncio
 import sys
+import socket
 try:
     from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
 except ImportError:
@@ -276,6 +277,22 @@ class CraftBeerPi:
 
         self.app.add_routes([web.get('/', http_index),
                              web.static('/static', os.path.join(os.path.dirname(__file__), "static"), show_index=True)])
+        
+    def testport(self, port=8000):
+        HOST = "localhost"
+        # Creates a new socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # Try to connect to the given host and port
+        if sock.connect_ex((HOST, port)) == 0:
+            #print("Port " + str(port) + " is open") # Connected successfully
+            isrunning = True
+        else:
+            #print("Port " + str(port) + " is closed") # Failed to connect because port is in use (or bad host)
+            isrunning = False
+        # Close the connection
+        sock.close()
+        return isrunning
 
     async def init_serivces(self):
 
@@ -304,4 +321,9 @@ class CraftBeerPi:
         return self.app
 
     def start(self):
-        web.run_app(self.init_serivces(), port=self.static_config.get("port", 2202))
+        port=self.static_config.get("port",8000)
+        if not self.testport(port):
+            web.run_app(self.init_serivces(), port=port)
+        else:
+            logging.error("Port {} is already in use! Please check, if server is already running (e.g. in automode)".format(port))
+            exit(1)

@@ -34,6 +34,11 @@ class SatelliteController:
         
         ]
         self.tasks = set()
+    
+    def remove_key(self,d, key):
+        r = dict(d)
+        del r[key]
+        return r
 
     async def init(self):
 
@@ -132,7 +137,8 @@ class SatelliteController:
             try:
                 self.fermenter=self.fermentercontroller.get_state()
                 for item in self.fermenter['data']:
-                    self.cbpi.push_update("cbpi/{}/{}".format("fermenterupdate",item['id']), item)
+                    item_new=self.remove_key(item,"steps")
+                    self.cbpi.push_update("cbpi/{}/{}".format("fermenterupdate",item['id']), item_new)
             except Exception as e:
                 self.logger.warning("Failed to send fermenterupdate via mqtt: {}".format(e))
 

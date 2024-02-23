@@ -524,6 +524,11 @@ class FermentationController:
         
         except Exception as e:
             self.logger.error(e)
+    
+    def remove_key(self,d, key):
+        r = dict(d)
+        del r[key]
+        return r
 
     def push_update(self, key="fermenterupdate"):
 
@@ -531,7 +536,8 @@ class FermentationController:
             self.cbpi.ws.send(dict(topic=key, data=list(map(lambda item: item.to_dict(), self.data))))
             
             for item in self.data:
-                self.cbpi.push_update("cbpi/{}/{}".format(self.update_key,item.id), item.to_dict())
+                fermenters=self.remove_key(item.to_dict(),"steps")
+                self.cbpi.push_update("cbpi/{}/{}".format(self.update_key,item.id), fermenters)
             pass
         else:
             fermentersteps=self.get_fermenter_steps()
@@ -539,9 +545,20 @@ class FermentationController:
 
             # send mqtt update for active femrentersteps
             for fermenter in fermentersteps:
+                active = False
                 for step in fermenter['steps']:
                     if step['status'] == 'A':
-                        self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), step)
+                        active=True
+                        active_step=step
+#                        self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), step)
+                    #else:
+                    #    self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), "")
+                if active:
+                    self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), active_step)
+                else:
+                    self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), "")
+
+                        
         
     async def call_action(self, id, action, parameter) -> None:
         logging.info("FermenterStep Controller - call Action {} {}".format(id, action))

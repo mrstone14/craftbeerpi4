@@ -80,7 +80,7 @@
         "options": null,
         "source": "hidden",
         "type": "string",
-        "value": "4.2.0.a6"
+        "value": "4.3.2.a6"
     },
     "CSVLOGFILES": {
         "description": "Write sensor data to csv logfiles (enabling requires restart)",
@@ -325,6 +325,14 @@
         "source": "hidden",
         "type": "number",
         "value": 1
+    },
+    "current_grid": {
+        "description": "Dashboard Grid Width",
+        "name": "current_grid",
+        "options": null,
+        "source": "hidden",
+        "type": "number",
+        "value": 5
     },
     "max_dashboard_number": {
         "description": "Max Number of Dashboards",

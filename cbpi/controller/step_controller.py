@@ -9,7 +9,7 @@ from os import listdir
 import os
 from os.path import isfile, join
 import shortuuid
-from cbpi.api.dataclasses import NotificationAction, Props, Step
+from cbpi.api.dataclasses import NotificationAction, NotificationType, Props, Step
 from tabulate import tabulate
 
 from ..api.step import StepMove, StepResult, StepState
@@ -156,14 +156,14 @@ class StepController:
         logging.info("BREWING COMPLETE")
     
     async def previous(self):
-        logging.info("Trigger Next")
+        logging.info("Trigger Previous")
 
 
     async def next(self):
         logging.info("Trigger Next")
-        print("\n\n\n\n")
-        print(self.profile)
-        print("\n\n\n\n")
+        #print("\n\n\n\n")
+        #print(self.profile)
+        #print("\n\n\n\n")
         step = self.find_by_status(StepState.ACTIVE)
         if step is not None:
             if step.instance is not None:
@@ -299,6 +299,7 @@ class StepController:
             await step.instance.start()
             step.status = StepState.ACTIVE
         except Exception as e:
+            self.cbpi.notify("Error", "Can't start step. Please check step in Mash Profile", NotificationType.ERROR)
             logging.error("Failed to start step %s" % step)
 
     async def save_basic(self, data):
