@@ -53,7 +53,7 @@ class SatelliteController:
                 except asyncio.CancelledError:
                     pass
         
-        self.client = Client(self.host, port=self.port, username=self.username, password=self.password, will=Will(topic="cbpi/disconnect", payload="CBPi Server Disconnected"),client_id=self.client_id)
+        self.client = Client(self.host, port=self.port, username=self.username, password=self.password, will=Will(topic="cbpi/disconnect", payload="CBPi Server Disconnected"),identifier=self.client_id)
         self.loop = asyncio.get_event_loop()
         ## Listen for mqtt messages in an (unawaited) asyncio task
         task = self.loop.create_task(self.listen())
@@ -67,9 +67,8 @@ class SatelliteController:
         while True:
             try:
                 async with self.client as client:
-                    async with client.messages() as messages:
                         await client.subscribe("#")
-                        async for message in messages:
+                        async for message in client.messages:
                             for topic_filter in self.topic_filters:
                                 topic = topic_filter[0]
                                 method = topic_filter[1]
@@ -167,11 +166,10 @@ class SatelliteController:
         while True:
             try:
                 if self.client._connected.done():
-                    async with self.client.messages() as messages:
-                        await self.client.subscribe(topic)
-                        async for message in messages:
-                            if message.topic.matches(topic):
-                                await method(message.payload.decode())
+                    await self.client.subscribe(topic)
+                    async for message in self.client.messages:
+                        if message.topic.matches(topic):
+                            await method(message.payload.decode())
             except asyncio.CancelledError:
                 # Cancel
                 self.logger.warning("Subscription {} Cancelled".format(topic))
