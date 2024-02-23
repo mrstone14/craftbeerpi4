@@ -547,9 +547,10 @@ class FermentationController:
             for fermenter in fermentersteps:
                 for step in fermenter['steps']:
                     if step['status'] == 'A':
-                        self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), step)
-                    else:
-                        self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), "")
+#                        self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), step)
+                        self.cbpi.push_update("cbpi/{}/{}".format(key,fermenter['id']), step)
+                    #else:
+                    #    self.cbpi.push_update("cbpi/{}/{}/{}".format(key,fermenter['id'],step['id']), "")
                         
         
     async def call_action(self, id, action, parameter) -> None:
