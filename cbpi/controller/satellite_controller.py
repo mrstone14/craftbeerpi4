@@ -157,29 +157,10 @@ class SatelliteController:
             except Exception as e:
                 self.logger.warning("Failed to send sensorupdate via mqtt: {}".format(e))
 
-    def subcribe(self, topic, method):
-        task = asyncio.create_task(self._subcribe(topic, method))
-        return task
-
-    async def _subcribe(self, topic, method):
-        self.error=False
-        while True:
-            try:
-                if self.client._connected.done():
-                    await self.client.subscribe(topic)
-                    async for message in self.client.messages:
-                        if message.topic.matches(topic):
-                            await method(message.payload.decode())
-            except asyncio.CancelledError:
-                # Cancel
-                self.logger.warning("Subscription {} Cancelled".format(topic))
-                self.error=True
-            except MqttError as e:
-                self.logger.error("Sub MQTT Exception: {}".format(e))
-            except Exception as e:
-                self.logger.error("Sub Exception: {}".format(e))
-            # wait before try to resubscribe
-            if self.error == True:
-                break
-            else:
-                await asyncio.sleep(5)
+    def subscribe(self, topic, method):
+        self.topic_filters.append((topic,method))
+        return True
+    
+    def unsubscribe(self, topic, method):
+        self.topic_filters.remove((topic,method))
+        return True
