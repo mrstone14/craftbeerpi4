@@ -1,3 +1,3 @@
-__version__ = "4.4.0.a3"
+__version__ = "4.4.0.a4"
 __codename__ = "Yeast Starter"
 
