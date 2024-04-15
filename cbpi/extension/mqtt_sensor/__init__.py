@@ -24,7 +24,7 @@ class MQTTSensor(CBPiSensor):
         self.payload_text = self.props.get("PayloadDictionary", None)
         if self.payload_text != None:
             self.payload_text = self.payload_text.split('.')
-        self.mqtt_task = self.cbpi.satellite.subcribe(self.Topic, self.on_message)
+        self.subscribed = self.cbpi.satellite.subscribe(self.Topic, self.on_message)
         self.value: float = 999
         self.timeout=int(self.props.get("Timeout", 60))
         self.starttime = time.time()
@@ -55,7 +55,7 @@ class MQTTSensor(CBPiSensor):
         pass
 
     async def on_message(self, message):
-        val = json.loads(message)
+        val = json.loads(message.payload.decode())
         try:
             if self.payload_text is not None:
                 for key in self.payload_text:
@@ -130,17 +130,8 @@ class MQTTSensor(CBPiSensor):
         return dict(value=self.value)
 
     async def on_stop(self):
-        was_cancelled=False
-        if not self.mqtt_task.done():
-            logging.info("Task not done -> cancelling")
-            was_cancelled = self.mqtt_task.cancel()
-        try:            
-            logging.info("Trying to call cancelled task")
-            await self.mqtt_task
-        except asyncio.CancelledError:
-            logging.info("Task has been Cancelled")
-            pass
-        logging.info("Task cancelled: {}".format(was_cancelled))
+        self.subscribed = self.cbpi.satellite.unsubscribe(self.Topic, self.on_message)
+
 
 def setup(cbpi):
     '''

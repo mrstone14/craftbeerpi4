@@ -97,7 +97,9 @@ class GPIOActor(CBPiActor):
         pass
             
 
-@parameters([Property.Select(label="GPIO", options=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]), Property.Number(label="Frequency", configurable=True)])
+@parameters([Property.Select(label="GPIO", options=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]), 
+             Property.Number(label="Frequency", configurable=True),
+             Property.Select(label="Inverted",options=["Yes","No"],description="Inverts PWM load if set to yes (e.g. 90% = 10%). Default: No")])
 class GPIOPWMActor(CBPiActor):
 
     # Custom property which can be configured by the user
@@ -113,10 +115,14 @@ class GPIOPWMActor(CBPiActor):
 
     async def on_start(self):
         self.gpio = self.props.get("GPIO", None)
+        self.inverted = self.props.get("Inverted", "No")
         self.frequency = self.props.get("Frequency", 0.5)
         if self.gpio is not None:
             GPIO.setup(self.gpio, GPIO.OUT)
-            GPIO.output(self.gpio, 0)
+            if self.inverted == "No":
+                GPIO.output(self.gpio, 0)
+            else:
+                GPIO.output(self.gpio, 1)
         self.state = False
         self.power = None
         self.p = None
@@ -135,7 +141,10 @@ class GPIOPWMActor(CBPiActor):
         try:
             if self.p is None:
                 self.p = GPIO.PWM(int(self.gpio), float(self.frequency))
-            self.p.start(self.power)
+            if self.inverted == "No":
+                self.p.start(self.power)
+            else:
+                self.p.start(100- self.power)
             self.state = True
 #            await self.cbpi.actor.actor_update(self.id,self.power)
         except:
@@ -143,12 +152,19 @@ class GPIOPWMActor(CBPiActor):
 
     async def off(self):
         logger.info("PWM ACTOR %s OFF - GPIO %s " % (self.id, self.gpio))
-        self.p.ChangeDutyCycle(0)
+        if self.inverted == "No":
+            self.p.ChangeDutyCycle(0)
+        else:
+            self.p.ChangeDutyCycle(100)
+
         self.state = False
 
     async def set_power(self, power):
         if self.p and self.state == True:
-            self.p.ChangeDutyCycle(power)
+            if self.inverted == "No":          
+                self.p.ChangeDutyCycle(power)
+            else:
+                self.p.ChangeDutyCycle(100 - power) # Set power to 100-value to invert output
         await self.cbpi.actor.actor_update(self.id,power)
         pass
 

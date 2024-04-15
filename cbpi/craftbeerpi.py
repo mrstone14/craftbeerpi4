@@ -263,7 +263,7 @@ class CraftBeerPi:
         f = Figlet(font='big')
         logger.warning("\n%s" % f.renderText("CraftBeerPi %s " % self.version))
         logger.warning("www.CraftBeerPi.com")
-        logger.warning("(c) 2021/2022/2023 Manuel Fritsch / Alexander Vollkopf")
+        logger.warning("(c) 2021 - 2024 Manuel Fritsch / Alexander Vollkopf")
 
     def _setup_http_index(self):
         async def http_index(request):
