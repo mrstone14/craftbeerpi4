@@ -165,31 +165,49 @@ class SystemHttpEndpoints:
         description: Zip and download craftbeerpi.service log 
         tags:
         - System
+        parameters:
+        - name: "logtime"
+          in: "path"
+          description: "Logtime in hours"
+          required: true
+          type: "integer"
+          format: "int64"
         responses:
             "200":
                 description: successful operation
                 content:  # Response body
                 application/zip:  # Media type
         """
-        logtime = request.match_info['logtime']
-        await self.controller.downloadlog(logtime)
-        filename = "cbpi4_log.zip"
-        file_name = pathlib.Path(os.path.join(".", filename))
+        checklogtime = False
+        logtime = request.match_info['logtime']      
+        
+        try:
+            test=int(logtime)
+            checklogtime = True
+        except:
+            if logtime == "b":
+                checklogtime = True
 
-        response = web.StreamResponse(
-            status=200,
-            reason='OK',
-            headers={'Content-Type': 'application/zip'},
-        )
-        await response.prepare(request)
-        with open(file_name, 'rb') as file:
-            for line in file.readlines():
-                await response.write(line)
+        if checklogtime:
+            await self.controller.downloadlog(logtime)
+            filename = "cbpi4_log.zip"
+            file_name = pathlib.Path(os.path.join(".", filename))
 
-        await response.write_eof()
-        os.remove(file_name)
-        return response
+            response = web.StreamResponse(
+                status=200,
+                reason='OK',
+                headers={'Content-Type': 'application/zip'},
+            )
+            await response.prepare(request)
+            with open(file_name, 'rb') as file:
+                for line in file.readlines():
+                    await response.write(line)
 
+            await response.write_eof()
+            os.remove(file_name)
+            return response
+        else:
+            return web.Response(status=400, text='Need integer or "b" for logtime.')
 
     @request_mapping("/restore", method="POST", name="RestoreConfig", auth_required=False)
     async def restore(self, request):
