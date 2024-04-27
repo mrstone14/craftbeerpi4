@@ -21,6 +21,7 @@ class CBPiActor(metaclass=ABCMeta):
         self.state = False  
         self.running = False
         self.power = 100
+        self.timer = 0
 
     def init(self):
         pass

@@ -56,13 +56,14 @@ class Actor:
     props: Props = Props()
     state: bool = False
     power: int = 100
+    timer: int = 0
     type: str = None
     instance: str = None
 
     def __str__(self):
-        return "name={} props={}, state={}, type={}, power={}".format(self.name, self.props, self.state, self.type, self.power)
+        return "name={} props={}, state={}, type={}, power={}, timer={}".format(self.name, self.props, self.state, self.type, self.power, self.timer)
     def to_dict(self):
-        return dict(id=self.id, name=self.name, type=self.type, props=self.props.to_dict(), state=self.instance.get_state(), power=self.power)
+        return dict(id=self.id, name=self.name, type=self.type, props=self.props.to_dict(), state=self.instance.get_state(), power=self.power, timer=self.timer)
 
 class DataType(Enum):
     VALUE="value"
