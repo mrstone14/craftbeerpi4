@@ -266,7 +266,7 @@ class UploadController:
                                     "type": step_type
                                     }
                     await self.create_step(step_string)
-                    
+
                 # MashOut -> Notification step that sends notification and waits for user input to move to next step (AutoNext=No)
                 if self.mashout == "NotificationStep":
                     step_string = { "name": "Lautering",
@@ -799,7 +799,6 @@ class UploadController:
                     else:
                         step_temp = str(round((9.0 / 5.0 * int(step['stepTemp']) + 32)))
 
-                    logging.error(step_temp)
                     sensor = self.kettle.sensor
                     if MashIn_Flag == True: 
 
