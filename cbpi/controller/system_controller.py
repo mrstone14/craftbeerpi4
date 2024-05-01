@@ -15,6 +15,14 @@ import zipfile
 import socket
 import importlib
 from tabulate import tabulate
+from datetime import datetime, timedelta
+
+try:
+    from systemd import journal
+    systemd_available=True
+except Exception:
+    logger.warning("Failed to load systemd library. logfile download not available")
+    systemd_available=False
 
 class SystemController:
 
@@ -64,7 +72,7 @@ class SystemController:
                 print(e)
         return tabulate(result, headers="keys")
 
-    async def downloadlog(self, logtime):
+    async def downloadlog_old(self, logtime):
         filename = "cbpi4.log"
         fullname = pathlib.Path(os.path.join(".",filename))
         pluginname = "cbpi4_plugins.txt"
@@ -82,6 +90,75 @@ class SystemController:
             os.system('journalctl -b -u craftbeerpi.service --output cat > {}'.format(fullname))
         else:
             os.system('journalctl --since \"{} hours ago\" -u craftbeerpi.service --output cat > {}'.format(logtime, fullname))
+
+        plugins = await self.plugins_list()
+
+        with open(fullpluginname, 'w') as f:
+            f.write(plugins)
+
+        #os.system('echo "{}" >> {}'.format(plugins,fullpluginname))
+
+        try:
+            actors = self.cbpi.actor.get_state()
+            json.dump(actors['data'],open(fullactorname,'w'),indent=4, sort_keys=True)
+            sensors = self.cbpi.sensor.get_state()
+            json.dump(sensors['data'],open(fullsensorname,'w'),indent=4, sort_keys=True)
+            kettles = self.cbpi.kettle.get_state()
+            json.dump(kettles['data'],open(fullkettlename,'w'),indent=4, sort_keys=True)
+        except Exception as e:
+            logging.info(e)
+            self.cbpi.notify("Error", "Creation of files failed: {}".format(e), NotificationType.ERROR)
+
+        try:
+            zipObj=zipfile.ZipFile(output_filename , 'w', zipfile.ZIP_DEFLATED)
+            zipObj.write(fullname)
+            zipObj.write(fullpluginname)
+            zipObj.write(fullactorname)
+            zipObj.write(fullsensorname)
+            zipObj.write(fullkettlename)
+            zipObj.close()
+        except Exception as e:
+            logging.info(e)
+            self.cbpi.notify("Error", "Zip creation failed: {}".format(e), NotificationType.ERROR)
+
+        try:
+            os.remove(fullname)
+            os.remove(fullpluginname)
+            os.remove(fullactorname)
+            os.remove(fullsensorname)
+            os.remove(fullkettlename)
+        except Exception as e:
+            logging.info(e)
+            self.cbpi.notify("Error", "Removal of original files failed: {}".format(e), NotificationType.ERROR)
+
+    async def downloadlog(self, logtime):
+        filename = "cbpi4.log"
+        fullname = pathlib.Path(os.path.join(".",filename))
+        pluginname = "cbpi4_plugins.txt"
+        fullpluginname = pathlib.Path(os.path.join(".",pluginname))
+        actorname = "cbpi4_actors.txt"
+        fullactorname = pathlib.Path(os.path.join(".",actorname))
+        sensorname = "cbpi4_sensors.txt"
+        fullsensorname = pathlib.Path(os.path.join(".",sensorname))
+        kettlename = "cbpi4_kettles.txt"
+        fullkettlename = pathlib.Path(os.path.join(".",kettlename))
+
+        output_filename="cbpi4_log.zip"
+
+        if logtime == "b":
+            os.system('journalctl -b -u craftbeerpi.service --output cat > {}'.format(fullname))
+        else:
+            if systemd_available:
+                result=[]
+                #os.system('journalctl --since \"{} hours ago\" -u craftbeerpi.service --output cat > {}'.format(logtime, fullname))
+                j = journal.Reader()
+                j.add_match(_SYSTEMD_UNIT="craftbeerpi.service")
+                since = datetime.now() - timedelta(hours=int(logtime))
+                j.seek_realtime(since)
+                for entry in j:
+                    result.append(entry)
+                logging.error(result)
+
 
         plugins = await self.plugins_list()
 
