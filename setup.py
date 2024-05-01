@@ -64,7 +64,8 @@ setup(name='cbpi4',
           'importlib_metadata',
           'numpy==1.26.4',
           'pandas==2.2.2'] + (
-          ['rpi-lgpio'] if raspberrypi else [] ),
+          ['rpi-lgpio'] if raspberrypi else [] ) + (
+          ['python-systemd'] if localsystem == "Linux" else [] ),
 
         dependency_links=[
         'https://testpypi.python.org/pypi',
