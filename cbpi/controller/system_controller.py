@@ -159,6 +159,8 @@ class SystemController:
                     result.append(entry['MESSAGE'])
                 logging.error(result)
 
+        with open(fullname, 'w') as f:
+            f.write(result)
 
         plugins = await self.plugins_list()
 
