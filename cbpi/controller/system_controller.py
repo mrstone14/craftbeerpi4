@@ -156,7 +156,7 @@ class SystemController:
                 since = datetime.now() - timedelta(hours=int(logtime))
                 j.seek_realtime(since)
                 for entry in j:
-                    result.append(entry)
+                    result.append(entry['MESSAGE'])
                 logging.error(result)
 
 
