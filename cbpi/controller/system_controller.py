@@ -157,12 +157,12 @@ class SystemController:
                 j.seek_realtime(since)
                 for entry in j:
                     result.append(entry['MESSAGE'])
-        try:
-            with open(fullname, 'w') as f:
-                for line in result:
-                    f.write(f"{line}\n")
-        except Exception as e:
-            logging.error(e)
+            try:
+                with open(fullname, 'w') as f:
+                    for line in result:
+                        f.write(f"{line}\n")
+            except Exception as e:
+                logging.error(e)
 
         plugins = await self.plugins_list()
         with open(fullpluginname, 'w') as f:
