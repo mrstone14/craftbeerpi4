@@ -21,7 +21,7 @@ try:
     from systemd import journal
     systemd_available=True
 except Exception:
-    logger.warning("Failed to load systemd library. logfile download not available")
+    logging.warning("Failed to load systemd library. logfile download not available")
     systemd_available=False
 
 class SystemController:
