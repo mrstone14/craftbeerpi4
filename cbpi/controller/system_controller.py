@@ -144,52 +144,28 @@ class SystemController:
         fullkettlename = pathlib.Path(os.path.join(".",kettlename))
 
         output_filename="cbpi4_log.zip"
-
-        if logtime == "b":
-            if systemd_available:
-                #os.system('journalctl -b -u craftbeerpi.service --output cat > {}'.format(fullname))
-                b = journal.Reader()
-                b.add_match(_TRANSPORT="kernel")
-                result=[]
-                for entry in b:
-                    message=entry['MESSAGE']
-                    if message.find("Booting") != -1:
-                        result.append(entry['__REALTIME_TIMESTAMP'])
-                j = journal.Reader()
-                j.add_match(_SYSTEMD_UNIT="craftbeerpi.service")
-                j.seek_realtime(result[-1])
-                result=[]
-                for entry in j:
-                    result.append(entry['MESSAGE'])
-            try:
-                with open(fullname, 'w') as f:
-                    for line in result:
-                        f.write(f"{line}\n")
-            except Exception as e:
-                logging.error(e)
-                
-        else:
-            if systemd_available:
-                result=[]
-                #os.system('journalctl --since \"{} hours ago\" -u craftbeerpi.service --output cat > {}'.format(logtime, fullname))
-                j = journal.Reader()
-                j.add_match(_SYSTEMD_UNIT="craftbeerpi.service")
+        result=[]
+        if systemd_available:
+            j = journal.Reader()
+            if logtime == "b":
+                j.this_boot()
+            else:
                 since = datetime.now() - timedelta(hours=int(logtime))
                 j.seek_realtime(since)
-                for entry in j:
-                    result.append(entry['MESSAGE'])
-            try:
-                with open(fullname, 'w') as f:
-                    for line in result:
-                        f.write(f"{line}\n")
-            except Exception as e:
-                logging.error(e)
+            j.add_match(_SYSTEMD_UNIT="craftbeerpi.service")
+
+            for entry in j:
+                result.append(entry['MESSAGE'])
+        try:
+            with open(fullname, 'w') as f:
+                for line in result:
+                    f.write(f"{line}\n")
+        except Exception as e:
+            logging.error(e)
 
         plugins = await self.plugins_list()
         with open(fullpluginname, 'w') as f:
             f.write(plugins)
-
-        #os.system('echo "{}" >> {}'.format(plugins,fullpluginname))
 
         try:
             actors = self.cbpi.actor.get_state()
