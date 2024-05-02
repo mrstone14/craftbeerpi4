@@ -15,6 +15,14 @@ import zipfile
 import socket
 import importlib
 from tabulate import tabulate
+from datetime import datetime, timedelta
+
+try:
+    from systemd import journal
+    systemd_available=True
+except Exception:
+    logger.warning("Failed to load systemd library. logfile download not available")
+    systemd_available=False
 
 class SystemController:
 
@@ -77,18 +85,28 @@ class SystemController:
         fullkettlename = pathlib.Path(os.path.join(".",kettlename))
 
         output_filename="cbpi4_log.zip"
+        result=[]
+        if systemd_available:
+            j = journal.Reader()
+            if logtime == "b":
+                j.this_boot()
+            else:
+                since = datetime.now() - timedelta(hours=int(logtime))
+                j.seek_realtime(since)
+            j.add_match(_SYSTEMD_UNIT="craftbeerpi.service")
 
-        if logtime == "b":
-            os.system('journalctl -b -u craftbeerpi.service --output cat > {}'.format(fullname))
-        else:
-            os.system('journalctl --since \"{} hours ago\" -u craftbeerpi.service --output cat > {}'.format(logtime, fullname))
+            for entry in j:
+                result.append(entry['MESSAGE'])
+        try:
+            with open(fullname, 'w') as f:
+                for line in result:
+                    f.write(f"{line}\n")
+        except Exception as e:
+            logging.error(e)
 
         plugins = await self.plugins_list()
-
         with open(fullpluginname, 'w') as f:
             f.write(plugins)
-
-        #os.system('echo "{}" >> {}'.format(plugins,fullpluginname))
 
         try:
             actors = self.cbpi.actor.get_state()
