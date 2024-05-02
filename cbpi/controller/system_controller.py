@@ -148,19 +148,25 @@ class SystemController:
         if logtime == "b":
             if systemd_available:
                 #os.system('journalctl -b -u craftbeerpi.service --output cat > {}'.format(fullname))
-                j = journal.Reader()
-                j.add_match(_TRANSPORT="kernel")
+                b = journal.Reader()
+                b.add_match(_TRANSPORT="kernel")
                 result=[]
-                for entry in j:
+                for entry in b:
                     message=entry['MESSAGE']
                     if message.find("Booting") != -1:
                         result.append(entry['__REALTIME_TIMESTAMP'])
+                j = journal.Reader()
                 j.add_match(_SYSTEMD_UNIT="craftbeerpi.service")
                 j.seek_realtime(result[-1])
+                result=[]
                 for entry in j:
-                    timestamp=entry['__REALTIME_TIMESTAMP']
-                    message=entry['MESSAGE']
-                    print(message)
+                    result.append(entry['MESSAGE'])
+            try:
+                with open(fullname, 'w') as f:
+                    for line in result:
+                        f.write(f"{line}\n")
+            except Exception as e:
+                logging.error(e)
                 
         else:
             if systemd_available:
