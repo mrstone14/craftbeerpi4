@@ -55,9 +55,9 @@ class FermenterHysteresis(CBPiFermenterLogic):
     
     async def run(self):
         try:
-            self.heater_offset_min = float(self.props.get("HeaterOffsetOn", 0))
+            self.heater_offset_min = float(self.props.get("HeaterOffsetOn", 0.2))
             self.heater_offset_max = float(self.props.get("HeaterOffsetOff", 0))
-            self.cooler_offset_min = float(self.props.get("CoolerOffsetOn", 0))
+            self.cooler_offset_min = float(self.props.get("CoolerOffsetOn", 0.2))
             self.cooler_offset_max = float(self.props.get("CoolerOffsetOff", 0))
             self.heater_max_power = int(self.props.get("HeaterMaxPower", 100))
             self.cooler_max_power = int(self.props.get("CoolerMaxPower", 100))
@@ -153,9 +153,9 @@ class FermenterSpundingHysteresis(CBPiFermenterLogic):
             logging.info("No valve or pressure sensor defined")
 
     async def temperature_control(self):
-            self.heater_offset_min = float(self.props.get("HeaterOffsetOn", 0))
+            self.heater_offset_min = float(self.props.get("HeaterOffsetOn", 0.2))
             self.heater_offset_max = float(self.props.get("HeaterOffsetOff", 0))
-            self.cooler_offset_min = float(self.props.get("CoolerOffsetOn", 0))
+            self.cooler_offset_min = float(self.props.get("CoolerOffsetOn", 0.2))
             self.cooler_offset_max = float(self.props.get("CoolerOffsetOff", 0))
         
             heater = self.cbpi.actor.find_by_id(self.heater)
