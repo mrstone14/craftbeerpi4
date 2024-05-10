@@ -16,6 +16,7 @@ import socket
 import importlib
 from tabulate import tabulate
 from datetime import datetime, timedelta, date
+import glob
 
 try:
     from systemd import journal
@@ -48,6 +49,13 @@ class SystemController:
         pass
 
     async def backupConfig(self):
+        files=glob.glob('*cbpi4_config*.zip')
+        for f in files:
+            try:
+                os.remove(f)
+            except Exception as e:
+                logging.error("Cannot remove old config backup: {}".format(e))
+
         try:
             current_date = date.today()
             current_date=str(current_date).replace("-","_")
