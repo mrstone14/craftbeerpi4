@@ -15,7 +15,7 @@ import zipfile
 import socket
 import importlib
 from tabulate import tabulate
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 try:
     from systemd import journal
@@ -48,9 +48,15 @@ class SystemController:
         pass
 
     async def backupConfig(self):
-        output_filename = "cbpi4_config"
+        try:
+            current_date = date.today()
+            current_date=str(current_date).replace("-","_")
+            output_filename = current_date+"_cbpi4_config"
+        except:
+            output_filename = "cbpi4_config"
         dir_name = pathlib.Path(self.cbpi.config_folder.get_file_path(''))
         shutil.make_archive(output_filename, 'zip', dir_name)
+        return output_filename+".zip"
 
     async def plugins_list(self): 
         result = []

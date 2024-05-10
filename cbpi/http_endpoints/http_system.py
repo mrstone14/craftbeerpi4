@@ -140,9 +140,10 @@ class SystemHttpEndpoints:
                 content:  # Response body
                 application/zip:  # Media type
         """
-        await self.controller.backupConfig()
-        filename = "cbpi4_config.zip"
+        filename = await self.controller.backupConfig()
+        #filename = "cbpi4_config.zip"
         file_name = pathlib.Path(os.path.join(".", filename))
+        logging.error(file_name)
 
         response = web.StreamResponse(
             status=200,
