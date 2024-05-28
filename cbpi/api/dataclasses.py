@@ -79,7 +79,9 @@ class Sensor:
     type: str = None
     instance: str = None
     datatype: DataType = DataType.VALUE
-
+    inrange: bool = True
+    temp_range: float = 0
+    
     def __str__(self):
         return "name={} props={}, state={}".format(self.name, self.props, self.state)
     def to_dict(self):
