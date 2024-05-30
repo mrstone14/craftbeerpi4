@@ -4,6 +4,7 @@ from cbpi.api.dataclasses import NotificationType
 from cbpi.api import *
 import logging
 import shortuuid
+from datetime import datetime
 class NotificationController:
 
     def __init__(self, cbpi):
@@ -15,6 +16,9 @@ class NotificationController:
         logging.root.addFilter(self.notify_log_event)
         self.callback_cache = {}    
         self.listener = {}
+        self.notifications = []
+        self.update_key="notificationupdate"
+        self.sorting=False
     
     def notify_log_event(self, record):
         NOTIFY_ON_ERROR = self.cbpi.config.get("NOTIFY_ON_ERROR", "No")
@@ -31,6 +35,10 @@ class NotificationController:
             finally:
                 return True
         return True
+    
+    def get_state(self):  
+        result = self.notifications
+        return result   
     
     def add_listener(self, method):
         listener_id = shortuuid.uuid()
@@ -69,7 +77,15 @@ class NotificationController:
         self.cbpi.ws.send(dict(id=notifcation_id, topic="notifiaction", type=type.value, title=title, message=message, action=actions, timeout=timeout))
         data = dict(type=type.value, title=title, message=message, action=actions, timeout=timeout)
         self.cbpi.push_update(topic="cbpi/notification", data=data)
+        self.notifications.insert(0,[f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}: {title} | {message}'])
+        if len(self.notifications) > 100:
+            self.notifications = self.notifications[:100]
+        self.cbpi.ws.send(dict(topic=self.update_key, data=self.notifications),self.sorting)
         asyncio.create_task(self._call_listener(title, message, type, action))
+
+    def delete_all_notifications(self):
+        self.notifications = []
+        self.cbpi.ws.send(dict(topic=self.update_key, data=self.notifications),self.sorting)
 
 
     def notify_callback(self, notification_id, action_id) -> None:
@@ -79,5 +95,5 @@ class NotificationController:
                 asyncio.create_task(action.method())
             del self.callback_cache[notification_id]
         except Exception as e:
-            self.logger.error("Failed to call notificatoin callback")
+            self.logger.error("Failed to call notification callback")
         

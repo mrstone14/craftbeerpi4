@@ -42,6 +42,7 @@ class SystemHttpEndpoints:
             step=self.cbpi.step.get_state(),
             fermentersteps=self.cbpi.fermenter.get_fermenter_steps(),
             config=self.cbpi.config.get_state(),
+            notifications=self.cbpi.notification.get_state(),
             version=__version__,
             guiversion=version,
             codename=__codename__)
