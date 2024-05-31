@@ -87,12 +87,22 @@ class ConfigFolder:
                     self.recursive_chown(output_path, owner, group)
                 print("Removing backup file")
                 os.remove(backupfile)
-                print("contents of restored_config.zip file have been restored.")
-                print("in case of a partial backup you will still be prompted to run 'cbpi setup'.")
+                Line1="Contents of restored_config.zip file have been restored."
+                Line2="In case of a partial backup you will still be prompted to run 'cbpi setup'."
+                print(Line1)
+                print(Line2)
             else:
                 zip.close()
-                print("Wrong Content in zip file. No restore possible")
-                print(f'These files are missing {missing_content}')
+                Line1="Wrong Content in zip file. No restore possible"
+                Line2=f'These files are missing {missing_content}'
+                print(Line1)
+                print(Line2)
+                restorelogfile = os.path.join(self.configFolderPath, "restore_error.log")
+                f = open(restorelogfile, "w")
+                f.write(Line1+"\n")
+                f.write(Line2+"\n")
+                f.close()
+
                 print("renaming zip file so it will be ignored on the next start")
                 try:
                     os.rename(backupfile, os.path.join(self.configFolderPath, "UNRESTORABLE_restored_config.zip"))

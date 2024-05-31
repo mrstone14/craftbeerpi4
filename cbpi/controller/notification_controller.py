@@ -5,6 +5,7 @@ from cbpi.api import *
 import logging
 import shortuuid
 from datetime import datetime
+import os
 class NotificationController:
 
     def __init__(self, cbpi):
@@ -19,6 +20,17 @@ class NotificationController:
         self.notifications = []
         self.update_key="notificationupdate"
         self.sorting=False
+        self.check_startup_message()
+
+    def check_startup_message(self):
+        self.restore_error = self.cbpi.config_folder.get_file_path("restore_error.log")
+        try:
+            with open(self.restore_error) as f:
+                for line in f:
+                    self.notifications.insert(0,[f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}: Restore Error | {line}'])    
+            os.remove(self.restore_error)           
+        except Exception as e:
+            pass        
     
     def notify_log_event(self, record):
         NOTIFY_ON_ERROR = self.cbpi.config.get("NOTIFY_ON_ERROR", "No")
