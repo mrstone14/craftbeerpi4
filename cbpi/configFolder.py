@@ -46,16 +46,28 @@ class ConfigFolder:
         if os.path.exists(os.path.join(backupfile)) is True:
             print("***************************************************")
             print("Found backup of config. Starting restore")
-            required_content=['dashboard/', 'recipes/', 'upload/', 'config.json', 'config.yaml']
+            required_content=['dashboard/', 
+                              'recipes/', 
+                              'upload/', 
+                              'sensor.json',
+                              'actor.json',
+                              'kettle.json',
+                              'config.json', 
+                              'craftbeerpi.template',
+                              'chromium.desktop',
+                              'config.yaml']
             zip=zipfile.ZipFile(backupfile)
             zip_content_list = zip.namelist()
             zip_content = True
+            missing_content=[]
             print("Checking content of zip file")
+
             for content in required_content:
                 try:
                     check = zip_content_list.index(content)
                 except:
                     zip_content = False
+                    missing_content.append(content)
 
             if zip_content == True:
                 print("Found correct content. Starting Restore process")
@@ -78,7 +90,9 @@ class ConfigFolder:
                 print("contents of restored_config.zip file have been restored.")
                 print("in case of a partial backup you will still be prompted to run 'cbpi setup'.")
             else:
+                zip.close()
                 print("Wrong Content in zip file. No restore possible")
+                print(f'These files are missing {missing_content}')
                 print("renaming zip file so it will be ignored on the next start")
                 try:
                     os.rename(backupfile, os.path.join(self.configFolderPath, "UNRESTORABLE_restored_config.zip"))
