@@ -31,6 +31,7 @@ class SystemController:
         self.cbpi = cbpi
         self.service = cbpi.actor
         self.logger = logging.getLogger(__name__)
+        self.logsFolderPath = self.cbpi.config_folder.logsFolderPath
 
         self.cbpi.app.on_startup.append(self.check_for_update)
 
@@ -111,6 +112,15 @@ class SystemController:
 
             for entry in j:
                 result.append(entry['MESSAGE'])
+        else:
+            try:
+                logfilename=pathlib.Path(self.logsFolderPath+"/"+"cbpi.log")
+                with open(logfilename) as f:
+                    for line in f:
+                        result.append(line.rstrip('\n'))
+            except:
+                pass
+            
         try:
             with open(fullname, 'w') as f:
                 for line in result:
