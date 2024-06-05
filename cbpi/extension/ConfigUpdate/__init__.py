@@ -505,6 +505,13 @@ class ConfigUpdate(CBPiExtension):
                 await self.cbpi.config.add("current_grid", current_grid, type=ConfigType.NUMBER, description="Dashboard Grid Width",source="hidden")
 
         # Check if CustomSVG props are correct for latest functionality (Widget dependent on acxtor state -> UI >= 0.3.14.a8)
+        plugin_list = await self.cbpi.plugin.load_plugin_list("cbpi4gui")
+        try:
+            version= plugin_list[0].get("Version", "not detected")
+        except:
+            version="not detected"
+
+        logging.info(f'GUI Version: {version}')
         try:
             dashboard_files=glob.glob(self.cbpi.config_folder.get_dashboard_path('cbpi_dashboard*.json'))
             write=False
