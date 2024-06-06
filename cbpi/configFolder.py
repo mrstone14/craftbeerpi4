@@ -46,16 +46,28 @@ class ConfigFolder:
         if os.path.exists(os.path.join(backupfile)) is True:
             print("***************************************************")
             print("Found backup of config. Starting restore")
-            required_content=['dashboard/', 'recipes/', 'upload/', 'config.json', 'config.yaml']
+            required_content=['dashboard/', 
+                              'recipes/', 
+                              'upload/', 
+                              'sensor.json',
+                              'actor.json',
+                              'kettle.json',
+                              'config.json', 
+                              'craftbeerpi.template',
+                              'chromium.desktop',
+                              'config.yaml']
             zip=zipfile.ZipFile(backupfile)
             zip_content_list = zip.namelist()
             zip_content = True
+            missing_content=[]
             print("Checking content of zip file")
+
             for content in required_content:
                 try:
                     check = zip_content_list.index(content)
                 except:
                     zip_content = False
+                    missing_content.append(content)
 
             if zip_content == True:
                 print("Found correct content. Starting Restore process")
@@ -74,10 +86,23 @@ class ConfigFolder:
                     print(f"Changing owner and group of config folder recursively to {owner}:{group}")
                     self.recursive_chown(output_path, owner, group)
                 print("Removing backup file")
-                print("contents of restored_config.zip file have been restored.")
-                print("in case of a partial backup you will still be prompted to run 'cbpi setup'.")
+                os.remove(backupfile)
+                Line1="Contents of restored_config.zip file have been restored."
+                Line2="In case of a partial backup you will still be prompted to run 'cbpi setup'."
+                print(Line1)
+                print(Line2)
             else:
-                print("Wrong Content in zip file. No restore possible")
+                zip.close()
+                Line1="Wrong Content in zip file. No restore possible"
+                Line2=f'These files are missing {missing_content}'
+                print(Line1)
+                print(Line2)
+                restorelogfile = os.path.join(self.configFolderPath, "restore_error.log")
+                f = open(restorelogfile, "w")
+                f.write(Line1+"\n")
+                f.write(Line2+"\n")
+                f.close()
+
                 print("renaming zip file so it will be ignored on the next start")
                 try:
                     os.rename(backupfile, os.path.join(self.configFolderPath, "UNRESTORABLE_restored_config.zip"))

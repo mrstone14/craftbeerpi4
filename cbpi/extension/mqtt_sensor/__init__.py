@@ -11,11 +11,13 @@ from datetime import datetime
 @parameters([Property.Text(label="Topic", configurable=True, description="MQTT Topic"),
              Property.Text(label="PayloadDictionary", configurable=True, default_value="",
                            description="Where to find msg in payload, leave blank for raw payload"),
-             Property.Kettle(label="Kettle", description="Reduced logging if Kettle is inactive (only Kettle or Fermenter to be selected)"),
-             Property.Fermenter(label="Fermenter", description="Reduced logging in seconds if Fermenter is inactive (only Kettle or Fermenter to be selected)"),
+             Property.Kettle(label="Kettle", description="Reduced logging if Kettle is inactive / range warning in dashboard (only Kettle or Fermenter to be selected)"),
+             Property.Fermenter(label="Fermenter", description="Reduced logging if Fermenter is inactive / range warning in dashboard (only Kettle or Fermenter to be selected)"),
              Property.Number(label="ReducedLogging", configurable=True, description="Reduced logging frequency in seconds if selected Kettle or Fermenter is inactive (default:60 sec | 0 disabled)"),
              Property.Number(label="Timeout", configurable=True, unit="sec",
-                            description="Timeout in seconds to send notification (default:60 | deactivated: 0)")])
+                            description="Timeout in seconds to send notification (default:60 | deactivated: 0)"),
+             Property.Number(label="TempRange", configurable=True, unit="degree",
+                            description="Temp range in degree between reading and target temp of fermenter/kettle. Larger difference shows different color in dashboard (default:0 | deactivated: 0)")])
 class MQTTSensor(CBPiSensor):
 
     def __init__(self, cbpi, id, props):
@@ -27,6 +29,7 @@ class MQTTSensor(CBPiSensor):
         self.subscribed = self.cbpi.satellite.subscribe(self.Topic, self.on_message)
         self.value: float = 999
         self.timeout=int(self.props.get("Timeout", 60))
+        self.temprange=float(self.props.get("TempRange", 0))
         self.starttime = time.time()
         self.notificationsend = False
         self.nextchecktime=self.starttime+self.timeout
@@ -42,7 +45,7 @@ class MQTTSensor(CBPiSensor):
 
         if self.kettleid is not None and self.fermenterid is not None:
             self.reducedlogging=False
-            self.cbpi.notify("MQTTSensor", "Sensor '" + str(self.sensor.name) + "' cant't have Fermenter and Kettle defined for reduced logging.", NotificationType.WARNING, action=[NotificationAction("OK", self.Confirm)])
+            self.cbpi.notify("MQTTSensor", "Sensor '" + str(self.sensor.name) + "' cant't have Fermenter and Kettle defined for reduced logging / range warning.", NotificationType.WARNING, action=[NotificationAction("OK", self.Confirm)])
             
     async def Confirm(self, **kwargs):
         self.nextchecktime = time.time() + self.timeout

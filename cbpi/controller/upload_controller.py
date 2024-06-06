@@ -185,13 +185,12 @@ class UploadController:
                 row = c.fetchone()
                 try:
                     if self.cbpi.config.get("TEMP_UNIT", "C") == "C":
-                        mashin_temp = str(float(row[0]))
+                        mashin_temp = str(int(row[0]))
                     else:
-                        mashin_temp = str(round(9.0 / 5.0 * float(row[0]) + 32))
+                        mashin_temp = str(round(9.0 / 5.0 * int(row[0]) + 32))
                 except:
                     pass
                 
-                logging.error(mashin_temp)
                 # get the hop addition times
                 c.execute('SELECT Zeit, Name FROM Hopfengaben WHERE Vorderwuerze <> 1 AND SudID = ?', (Recipe_ID,))
                 hops = c.fetchall()
@@ -242,7 +241,7 @@ class UploadController:
                                         "AutoMode": self.AutoMode,
                                         "Kettle": self.id,
                                         "Sensor": self.kettle.sensor,
-                                        "Temp": str(float(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * float(row[1]) + 32)),
+                                        "Temp": str(int(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * int(row[1]) + 32)),
                                         "Timer": "0",
                                         "Notification": "Target temperature reached. Please add malt."
                                         },
@@ -259,7 +258,7 @@ class UploadController:
                                         "AutoMode": self.AutoMode,
                                         "Kettle": self.id,
                                         "Sensor": self.kettle.sensor,
-                                        "Temp": str(float(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * float(row[1]) + 32)),
+                                        "Temp": str(int(row[1])) if self.TEMP_UNIT == "C" else str(round(9.0 / 5.0 * int(row[1]) + 32)),
                                         "Timer": str(int(row[2]))
                                         },
                                     "status_text": "",

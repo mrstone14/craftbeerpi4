@@ -25,7 +25,10 @@ jobs:
       - name: Setup python environment
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: '3.11'
+      
+      - name: Install packages
+        run: sudo apt install -y libsystemd-dev
 
       - name: Clean
         run: python setup.py clean --all

@@ -10,7 +10,7 @@ aiojobs==1.2.1
 aiosqlite==0.17.0 
 cryptography==42.0.5
 pyopenssl==24.1.0
-requests==2.31.0 
+requests==2.32.2 
 voluptuous==0.14.2 
 pyfiglet==1.0.2 
 pandas==2.2.2
@@ -20,10 +20,11 @@ numpy==1.26.4
 cbpi4gui
 click==8.1.7
 importlib_metadata==4.11.1
-aiomqtt==2.0.1
+aiomqtt==2.1.0
 psutil==5.9.8
 zipp>=0.5
 colorama==0.4.6
 pytest-aiohttp
 coverage==6.3.1
 inquirer==3.2.4
+systemd-python

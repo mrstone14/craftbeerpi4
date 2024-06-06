@@ -52,10 +52,13 @@ class ReadThread (threading.Thread):
 @parameters([Property.Select(label="Sensor", options=getSensors()), 
              Property.Number(label="offset",configurable = True, default_value = 0, description="Sensor Offset (Default is 0)"),
              Property.Select(label="Interval", options=[1,5,10,30,60], description="Interval in Seconds"),
-             Property.Kettle(label="Kettle", description="Reduced logging if Kettle is inactive (only Kettle or Fermenter to be selected)"),
-             Property.Fermenter(label="Fermenter", description="Reduced logging in seconds if Fermenter is inactive (only Kettle or Fermenter to be selected)"),
-             Property.Number(label="ReducedLogging", configurable=True, description="Reduced logging frequency in seconds if selected Kettle or Fermenter is inactive (default: 60 sec | disabled: 0)")
-             ])
+             Property.Kettle(label="Kettle", description="Reduced logging if Kettle is inactive / range warning in dashboard(only Kettle or Fermenter to be selected)"),
+             Property.Fermenter(label="Fermenter", description="Reduced logging in seconds if Fermenter is inactive / range warning in dashboard (only Kettle or Fermenter to be selected)"),
+             Property.Number(label="ReducedLogging", configurable=True, description="Reduced logging frequency in seconds if selected Kettle or Fermenter is inactive (default: 60 sec | disabled: 0)"),
+             Property.Number(label="TempRange", configurable=True, unit="degree",
+                            description="Temp range in degree between reading and target temp of fermenter/kettle. Larger difference shows different color in dashboard (default:0 | deactivated: 0)")
+            ])
+
 class OneWire(CBPiSensor):
     
     def __init__(self, cbpi, id, props):
@@ -72,6 +75,7 @@ class OneWire(CBPiSensor):
         if self.reducedfrequency < 0:
             self.reducedfrequency = 0
         self.lastlog=0
+        self.temprange=float(self.props.get("TempRange", 0))
         self.sensor=self.get_sensor(self.id)       
         self.kettleid=self.props.get("Kettle", None)
         self.fermenterid=self.props.get("Fermenter", None)
@@ -79,7 +83,7 @@ class OneWire(CBPiSensor):
 
         if self.kettleid is not None and self.fermenterid is not None:
             self.reducedlogging=False
-            self.cbpi.notify("OneWire Sensor", "Sensor '" + str(self.sensor.name) + "' cant't have Fermenter and Kettle defined for reduced logging.", NotificationType.WARNING, action=[NotificationAction("OK", self.Confirm)])
+            self.cbpi.notify("OneWire Sensor", "Sensor '" + str(self.sensor.name) + "' cant't have Fermenter and Kettle defined for reduced logging / range warning.", NotificationType.WARNING, action=[NotificationAction("OK", self.Confirm)])
         if (self.reducedfrequency != 0) and (self.interval >= self.reducedfrequency):
             self.reducedlogging=False
             self.cbpi.notify("OneWire Sensor", "Sensor '" + str(self.sensor.name) + "' has shorter or equal 'reduced logging' compared to regular interval.", NotificationType.WARNING, action=[NotificationAction("OK", self.Confirm)])

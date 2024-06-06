@@ -287,7 +287,9 @@ def main(context, config_folder_path, logs_folder_path, debug_log_level):
             logger.info(f"logs folder '{logs_folder_path}' doesnt exist and we are trying to create it")
             pathlib.Path(logs_folder_path).mkdir(parents=True, exist_ok=True)
             logger.info(f"logs folder '{logs_folder_path}' successfully created")
-        logger.addHandler(logging.handlers.RotatingFileHandler(os.path.join(logs_folder_path, f"cbpi.log"), maxBytes=1000000, backupCount=3))
+        handler=logging.handlers.RotatingFileHandler(os.path.join(logs_folder_path, f"cbpi.log"), maxBytes=1000000, backupCount=3)
+        logger.addHandler(handler)
+        handler.setFormatter(formatter)
     except Exception as e:
         logger.warning("log folder or log file could not be created or accessed. check folder and file permissions or create the logs folder somewhere you have access with a start option like '--log-folder-path=./logs'")
         logging.critical(e, exc_info=True)

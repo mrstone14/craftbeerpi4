@@ -8,6 +8,7 @@ import json
 from cbpi.api import *
 from cbpi.api.config import ConfigType
 from cbpi.api.base import CBPiBase
+import glob
 from cbpi import __version__
 
 logger = logging.getLogger(__name__)
@@ -502,7 +503,44 @@ class ConfigUpdate(CBPiExtension):
         else: 
             if CONFIG_STATUS is None or CONFIG_STATUS != self.version:
                 await self.cbpi.config.add("current_grid", current_grid, type=ConfigType.NUMBER, description="Dashboard Grid Width",source="hidden")
-                                                                                                
+
+        # Check if CustomSVG props are correct for latest functionality (Widget dependent on acxtor state -> UI >= 0.3.14.a8)
+        plugin_list = await self.cbpi.plugin.load_plugin_list("cbpi4gui")
+        try:
+            version= plugin_list[0].get("Version", "not detected")
+        except:
+            version="not detected"
+
+        logging.info(f'GUI Version: {version}')
+        try:
+            dashboard_files=glob.glob(self.cbpi.config_folder.get_dashboard_path('cbpi_dashboard*.json'))
+            write=False
+
+            for dashboard_file in dashboard_files:
+                with open(dashboard_file, 'r') as file:
+                    data = json.load(file)
+
+                for id in data['elements']:
+                    if id['type'] == 'CustomSVG':
+                        try:
+                            testoff = (id['props']['WidgetOff'])
+                        except:
+                            id['props']['WidgetOff'] = id['props']['name']
+                            write=True
+                        try:
+                            teston = (id['props']['WidgetOn'])
+                        except:
+                            try:
+                                id['props']['WidgetOn'] = id['props']['nameon']
+                                write=True
+                            except:
+                                pass                                
+
+                if write:
+                    with open(dashboard_file, 'w') as outfile:
+                        json.dump(data, outfile, indent=4, sort_keys=True)        
+        except Exception as e:
+            logging.error(e)
 
 
         ## Check if influxdbname is in config

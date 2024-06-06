@@ -7,7 +7,7 @@
 
         {
             "name": "run CraftBeerPi4",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "run",
             "args": [
@@ -20,7 +20,7 @@
 
         {
             "name": "create CraftBeerPi4 plugin",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "run",
             "args": ["--config-folder-path=./.devcontainer/cbpi-dev-config", "create"]
@@ -28,7 +28,7 @@
 
         {
             "name": "setup CraftBeerPi4: create config folder structure",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "run",
             "args": ["--config-folder-path=./.devcontainer/cbpi-dev-config", "setup"]
@@ -36,7 +36,7 @@
 
         {
             "name": "run tests",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "pytest",
             "args": ["tests"]

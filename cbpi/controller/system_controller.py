@@ -15,6 +15,15 @@ import zipfile
 import socket
 import importlib
 from tabulate import tabulate
+from datetime import datetime, timedelta, date
+import glob
+
+try:
+    from systemd import journal
+    systemd_available=True
+except Exception:
+    logging.warning("Failed to load systemd library. logfile download not available")
+    systemd_available=False
 
 class SystemController:
 
@@ -22,6 +31,7 @@ class SystemController:
         self.cbpi = cbpi
         self.service = cbpi.actor
         self.logger = logging.getLogger(__name__)
+        self.logsFolderPath = self.cbpi.config_folder.logsFolderPath
 
         self.cbpi.app.on_startup.append(self.check_for_update)
 
@@ -40,9 +50,22 @@ class SystemController:
         pass
 
     async def backupConfig(self):
-        output_filename = "cbpi4_config"
+        files=glob.glob('*cbpi4_config*.zip')
+        for f in files:
+            try:
+                os.remove(f)
+            except Exception as e:
+                logging.error("Cannot remove old config backup: {}".format(e))
+
+        try:
+            current_date = date.today()
+            current_date=str(current_date).replace("-","_")
+            output_filename = current_date+"_cbpi4_config"
+        except:
+            output_filename = "cbpi4_config"
         dir_name = pathlib.Path(self.cbpi.config_folder.get_file_path(''))
         shutil.make_archive(output_filename, 'zip', dir_name)
+        return output_filename+".zip"
 
     async def plugins_list(self): 
         result = []
@@ -77,18 +100,37 @@ class SystemController:
         fullkettlename = pathlib.Path(os.path.join(".",kettlename))
 
         output_filename="cbpi4_log.zip"
+        result=[]
+        if systemd_available:
+            j = journal.Reader()
+            if logtime == "b":
+                j.this_boot()
+            else:
+                since = datetime.now() - timedelta(hours=int(logtime))
+                j.seek_realtime(since)
+            j.add_match(_SYSTEMD_UNIT="craftbeerpi.service")
 
-        if logtime == "b":
-            os.system('journalctl -b -u craftbeerpi.service --output cat > {}'.format(fullname))
+            for entry in j:
+                result.append(entry['MESSAGE'])
         else:
-            os.system('journalctl --since \"{} hours ago\" -u craftbeerpi.service --output cat > {}'.format(logtime, fullname))
+            try:
+                logfilename=pathlib.Path(self.logsFolderPath+"/"+"cbpi.log")
+                with open(logfilename) as f:
+                    for line in f:
+                        result.append(line.rstrip('\n'))
+            except:
+                pass
+            
+        try:
+            with open(fullname, 'w') as f:
+                for line in result:
+                    f.write(f"{line}\n")
+        except Exception as e:
+            logging.error(e)
 
         plugins = await self.plugins_list()
-
         with open(fullpluginname, 'w') as f:
             f.write(plugins)
-
-        #os.system('echo "{}" >> {}'.format(plugins,fullpluginname))
 
         try:
             actors = self.cbpi.actor.get_state()

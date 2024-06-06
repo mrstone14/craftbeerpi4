@@ -10,6 +10,7 @@ RUN     apt-get update \
     &&  apt-get upgrade -y
 RUN apt-get install --no-install-recommends -y \
     libatlas-base-dev \
+    libsystemd-dev \
     libffi-dev \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
