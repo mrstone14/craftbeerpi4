@@ -53,7 +53,7 @@ class ConfigFolder:
                               'actor.json',
                               'kettle.json',
                               'config.json', 
-                              'craftbeerpi.template',
+                              #'craftbeerpi.template',
                               'chromium.desktop',
                               'config.yaml']
             zip=zipfile.ZipFile(backupfile)
