@@ -23,7 +23,6 @@ from ..api.step import StepMove, StepResult, StepState
 import re
 import base64
 
-
 class UploadController:
 
     def __init__(self, cbpi):
@@ -70,9 +69,12 @@ class UploadController:
             return []
 
     async def get_brewfather_recipes(self,offset=0):
+        limit = 50
+        #loop=0
+        repeat = True
         brewfather = True
         result=[]
-        self.url="https://api.brewfather.app/v1/recipes"
+        self.url="https://api.brewfather.app/v2/recipes"
         brewfather_user_id = self.cbpi.config.get("brewfather_user_id", None)
         if brewfather_user_id == "" or brewfather_user_id is None:
             brewfather = False
@@ -84,25 +86,40 @@ class UploadController:
         if brewfather == True:
             encodedData = base64.b64encode(bytes(f"{brewfather_user_id}:{brewfather_api_key}", "ISO-8859-1")).decode("ascii")
             headers={"Authorization": "Basic %s" % encodedData}
-            parameters={"limit": 50, 'offset': offset}
-            async with aiohttp.ClientSession(headers=headers) as bf_session:
-                async with bf_session.get(self.url, params=parameters) as r:
-                    bf_recipe_list = await r.json()
-                await bf_session.close()
+            parameters={"limit": limit}
+            while repeat == True:
+                try:
+                    async with aiohttp.ClientSession(headers=headers) as bf_session:
+                        async with bf_session.get(self.url, params=parameters) as r:
+                            bf_recipe_list = await r.json()
+                        await bf_session.close()
+                except Exception as e:
+                    logging.error(e)
 
-            if bf_recipe_list:
-                for row in bf_recipe_list:
-                    recipe_id = row['_id']
-                    name = row['name']
-                    element = {'value': recipe_id, 'label': name}
-                    result.append(element)
-                return result
-            else:
-                return []
+                if bf_recipe_list:
+                    #loop +=1
+                    for row in bf_recipe_list:
+                        recipe_id = row['_id']
+                        name = row['name']
+                        element = {'value': recipe_id, 'label': name}
+                        result.append(element)
+                else:
+                    repeat = False
 
-        else:
-            return []
-
+                if len(bf_recipe_list) != limit: 
+                    #logging.info(loop)
+                    repeat = False
+                else:
+                    parameters={"limit": limit, 'start_after': recipe_id}                    
+            
+        #logging.info(len(result))
+        try:
+            newlist = sorted(result, key=lambda d: d['label'])
+            #logging.info(newlist)
+            return newlist
+        except:
+            return result
+            
         
     def get_creation_path(self):
         creation_path = self.cbpi.config.get("RECIPE_CREATION_PATH", "upload")
@@ -738,7 +755,7 @@ class UploadController:
 
             brewfather = True
             result=[]
-            self.bf_url="https://api.brewfather.app/v1/recipes/" + Recipe_ID
+            self.bf_url="https://api.brewfather.app/v2/recipes/" + Recipe_ID
             brewfather_user_id = self.cbpi.config.get("brewfather_user_id", None)
             if brewfather_user_id == "" or brewfather_user_id is None:
                 brewfather = False

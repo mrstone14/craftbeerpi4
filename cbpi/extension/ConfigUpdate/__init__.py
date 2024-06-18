@@ -61,6 +61,7 @@ class ConfigUpdate(CBPiExtension):
         AddMashIn = self.cbpi.config.get("AddMashInStep", None)
         bfuserid = self.cbpi.config.get("brewfather_user_id", None)
         bfapikey = self.cbpi.config.get("brewfather_api_key", None)
+        bflistlength = self.cbpi.config.get("brewfather_list_length", None)
         RecipeCreationPath = self.cbpi.config.get("RECIPE_CREATION_PATH", None)
         BoilKettle = self.cbpi.config.get("BoilKettle", None)
         CONFIG_STATUS = self.cbpi.config.get("CONFIG_STATUS", None)
@@ -242,6 +243,21 @@ class ConfigUpdate(CBPiExtension):
             logger.info("INIT Brewfather API Key")
             try:
                 await self.cbpi.config.add("brewfather_api_key", "", type=ConfigType.STRING, description="Brewfather API Key", source="craftbeerpi")
+            except:
+                logger.warning('Unable to update config')
+        
+        ## Check if Brewfather API Key is in config
+        
+        if bflistlength is None:
+            logger.info("INIT Brewfather Recipe List Length")
+            try:
+                await self.cbpi.config.add("brewfather_list_length", 50, type=ConfigType.SELECT, description="Brewfather Recipe List length", 
+                                                                                                 source="craftbeerpi",
+                                                                                                options= [{"label": "5", "value": 5},
+                                                                                                {"label": "10", "value": 10},
+                                                                                                {"label": "25", "value": 25},
+                                                                                                {"label": "50", "value": 50},
+                                                                                                {"label": "100", "value": 100}])
             except:
                 logger.warning('Unable to update config')
 
