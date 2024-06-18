@@ -70,7 +70,7 @@ class UploadController:
 
     async def get_brewfather_recipes(self,offset=0):
         limit = 50
-        loop=0
+        #loop=0
         repeat = True
         brewfather = True
         result=[]
@@ -97,7 +97,7 @@ class UploadController:
                     logging.error(e)
 
                 if bf_recipe_list:
-                    loop +=1
+                    #loop +=1
                     for row in bf_recipe_list:
                         recipe_id = row['_id']
                         name = row['name']
@@ -107,15 +107,15 @@ class UploadController:
                     repeat = False
 
                 if len(bf_recipe_list) != limit: 
-                    logging.info(loop)
+                    #logging.info(loop)
                     repeat = False
                 else:
                     parameters={"limit": limit, 'start_after': recipe_id}                    
             
-        logging.info(len(result))
+        #logging.info(len(result))
         try:
             newlist = sorted(result, key=lambda d: d['label'])
-            logging.error(newlist)
+            #logging.info(newlist)
             return newlist
         except:
             return result
