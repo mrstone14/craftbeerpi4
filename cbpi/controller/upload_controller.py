@@ -17,7 +17,7 @@ import os.path
 from os import listdir
 from os.path import isfile, join
 import json
-import shortuuid
+import math
 import yaml
 from ..api.step import StepMove, StepResult, StepState
 import re
@@ -70,7 +70,7 @@ class UploadController:
 
     async def get_brewfather_recipes(self,offset=0):
         limit = 50
-        #loop=0
+        length = self.cbpi.config.get('brewfather_list_length',50)
         repeat = True
         brewfather = True
         result=[]
@@ -91,10 +91,16 @@ class UploadController:
                 try:
                     async with aiohttp.ClientSession(headers=headers) as bf_session:
                         async with bf_session.get(self.url, params=parameters) as r:
-                            bf_recipe_list = await r.json()
+                            if r.status == 429:
+                                logging.error("Too many requests to BF api. Try again later")
+                                self.cbpi.notify("Error", "Too many requests to BF api. Try again later", NotificationType.ERROR)
+                                repeat = False
+                            else:
+                                bf_recipe_list = await r.json()
                         await bf_session.close()
                 except Exception as e:
                     logging.error(e)
+                    repeat = False
 
                 if bf_recipe_list:
                     #loop +=1
@@ -112,13 +118,21 @@ class UploadController:
                 else:
                     parameters={"limit": limit, 'start_after': recipe_id}                    
             
-        #logging.info(len(result))
+
         try:
             newlist = sorted(result, key=lambda d: d['label'])
-            #logging.info(newlist)
-            return newlist
+            listlength=len(newlist)
+            max=math.floor(listlength/length)
+            #logging.error(listlength)
+            #logging.error(length)
+            sortlist=[]
+            for i in range(0 , max+1): 
+                sortlist.append({ 'value': i*length, 'label': i*length })
+            #logging.error(sortlist)
+            return newlist, sortlist, length
         except:
-            return result
+            sortlist=[{ 'value': 0, 'label': '0' }]
+            return result, sortlist, length
             
         
     def get_creation_path(self):
