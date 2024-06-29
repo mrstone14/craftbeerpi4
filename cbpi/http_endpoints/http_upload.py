@@ -159,6 +159,23 @@ class UploadHttpEndpoints():
 
         return web.json_response(bf_list)
 
+    @request_mapping(path='/bfupdate/', method="GET", auth_required=False)
+    async def get_bf_update(self, request):
+        """
+
+        ---
+        description: Get recipe list update from Brewfather App
+        tags:
+        - Upload
+        responses:
+            "200":
+                description: successful operation
+        """
+        #offset = request.match_info['offset']
+        bf_list = await self.controller.get_brewfather_recipes()
+        self.cbpi.ws.send(dict(topic="bfupdate", data=bf_list))
+        return web.Response(status=200)
+
     @request_mapping(path='/bf', method="POST", auth_required=False)
     async def create_bf_recipe(self, request):
         """
