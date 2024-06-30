@@ -101,36 +101,35 @@ class UploadController:
                 except Exception as e:
                     logging.error(e)
                     repeat = False
-
-                if bf_recipe_list:
-                    #loop +=1
-                    for row in bf_recipe_list:
-                        recipe_id = row['_id']
-                        name = row['name']
-                        element = {'value': recipe_id, 'label': name}
-                        result.append(element)
-                else:
-                    repeat = False
-
-                if len(bf_recipe_list) != limit: 
-                    #logging.info(loop)
-                    repeat = False
-                else:
-                    parameters={"limit": limit, 'start_after': recipe_id}                    
-            
-
+                try:
+                    if bf_recipe_list:
+                        for row in bf_recipe_list:
+                            recipe_id = row['_id']
+                            name = row['name']
+                            element = {'value': recipe_id, 'label': name}
+                            result.append(element)
+                    else:
+                        repeat = False
+                except Exception as e:
+                    logging.error(e)
+                try:
+                    if len(bf_recipe_list) != limit: 
+                        repeat = False
+                    else:
+                        parameters={"limit": limit, 'start_after': recipe_id}       
+                except Exception as e:
+                    logging.error(e)                    
+                      
         try:
             newlist = sorted(result, key=lambda d: d['label'])
             listlength=len(newlist)
             max=math.floor(listlength/length)
-            #logging.error(listlength)
-            #logging.error(length)
             sortlist=[]
             for i in range(0 , max+1): 
                 sortlist.append({ 'value': i*length, 'label': i*length })
-            #logging.error(sortlist)
             return newlist, sortlist, length
         except:
+            logging.error("Return empty BF recipe list")
             sortlist=[{ 'value': 0, 'label': '0' }]
             return result, sortlist, length
             
