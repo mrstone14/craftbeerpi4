@@ -92,9 +92,19 @@ class UploadController:
                     async with aiohttp.ClientSession(headers=headers) as bf_session:
                         async with bf_session.get(self.url, params=parameters) as r:
                             if r.status == 429:
-                                logging.error("Too many requests to BF api. Try again later")
-                                self.cbpi.notify("Error", "Too many requests to BF api. Try again later", NotificationType.ERROR)
+                                try:
+                                    seconds=int(r.headers['Retry-After'])
+                                    minutes=round(seconds/60)
+                                except:
+                                    seconds=None
+                                if not seconds:
+                                    logging.error("Too many requests to BF api. Try again later")
+                                    self.cbpi.notify("Error", "Too many requests to BF api. Try again later", NotificationType.ERROR)
+                                else:
+                                    logging.error(f"Too many requests to BF api. Try in {minutes} minutes again.")
+                                    self.cbpi.notify("Error", f"Too many requests to BF api. Try in {minutes} minutes again.", NotificationType.ERROR)
                                 repeat = False
+                                logging.error(r.headers['Retry-After'])
                             else:
                                 bf_recipe_list = await r.json()
                         await bf_session.close()
