@@ -7,7 +7,7 @@ from cbpi.configFolder import ConfigFolder
 from cbpi.utils.utils import load_config
 from zipfile import ZipFile
 from cbpi.craftbeerpi import CraftBeerPi
-import os
+import os, pwd
 import pkgutil
 import shutil
 import click
@@ -165,7 +165,8 @@ class CraftBeerPiCli():
             else:
                 print("CraftBeerPi Autostart is {}OFF{}".format(Fore.RED,Style.RESET_ALL))
         elif(name == "on"):
-            user=os.getlogin()
+            #user=os.getlogin()
+            user=pwd.getpwuid(os.getuid()).pw_name
             path="/usr/local/bin/cbpi"
             if os.path.exists("/home/"+user+"/.local/bin/cbpi") is True:
                     path="/home/"+user+"/.local/bin/cbpi"
