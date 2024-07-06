@@ -8,7 +8,7 @@ import json
 from cbpi.api import *
 from cbpi.api.config import ConfigType
 from cbpi.api.base import CBPiBase
-import glob
+import glob, yaml
 from cbpi import __version__
 
 logger = logging.getLogger(__name__)
@@ -18,6 +18,12 @@ class ConfigUpdate(CBPiExtension):
     def __init__(self,cbpi):
         self.cbpi = cbpi
         self._task = asyncio.create_task(self.run())
+
+    def append_to_yaml(self, file_path, data_to_append):
+
+        with open(file_path[0], 'a+') as file:
+            file.seek(0)
+            yaml.dump(data_to_append, file, default_flow_style=False)
 
 
     async def run(self):
@@ -67,7 +73,7 @@ class ConfigUpdate(CBPiExtension):
         CONFIG_STATUS = self.cbpi.config.get("CONFIG_STATUS", None)
         self.version=__version__
         current_grid = self.cbpi.config.get("current_grid", None)
-
+        mqtt_offset=self.cbpi.static_config.get("mqtt_offset", None)
 
         if boil_temp is None:
             logger.info("INIT Boil Temp Setting")
@@ -558,6 +564,16 @@ class ConfigUpdate(CBPiExtension):
         except Exception as e:
             logging.error(e)
 
+        if mqtt_offset is None:
+            logging.info("INIT MQTT Offset in static config")
+            try:
+                static_config_file=glob.glob(self.cbpi.config_folder.get_file_path('config.yaml'))
+                data_to_append = {'mqtt_offset': False}
+                self.append_to_yaml(static_config_file, data_to_append)
+                pass
+            except Exception as e:
+                logging.error(e)
+                logging.warning('Unable to update database')
 
         ## Check if influxdbname is in config
         if CONFIG_STATUS is None or CONFIG_STATUS != self.version:

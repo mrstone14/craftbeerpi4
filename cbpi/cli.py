@@ -7,7 +7,12 @@ from cbpi.configFolder import ConfigFolder
 from cbpi.utils.utils import load_config
 from zipfile import ZipFile
 from cbpi.craftbeerpi import CraftBeerPi
-import os, pwd
+import os
+try:
+    import pwd
+    module_pwd=True
+except:
+    module_pwd=False
 import pkgutil
 import shutil
 import click
