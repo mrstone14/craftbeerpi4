@@ -62,7 +62,7 @@ setup(name='cbpi4',
           'psutil==5.9.8',
           'cbpi4gui',
           'importlib_metadata',
-          'numpy==1.26.4',
+          'numpy==2.0.0',
           'pandas==2.2.2'] + (
           ['rpi-lgpio'] if raspberrypi else [] ) + (
           ['systemd-python'] if localsystem == "Linux" else [] ),
