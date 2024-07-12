@@ -815,6 +815,21 @@ class UploadController:
                 except:
                     miscs = None
 
+                try:
+                    fermentation_steps=bf_recipe['fermentation']['steps']
+                except:
+                    fermentation_steps=None
+
+                if fermentation_steps is not None:
+                    try:
+                        step=fermentation_steps[0]
+                        self.fermentation_step_temp=int(step['stepTemp'])
+                    except:
+                        self.fermentation_step_temp=None
+                
+                if self.fermentation_step_temp is not None and self.TEMP_UNIT != "C":
+                    self.fermentation_step_temp = round((9.0 / 5.0 *  float(self.fermentation_step_temp)+ 32))
+
                 FirstWort = self.getFirstWort(hops, "bf")
 
                 await self.create_recipe(RecipeName)
@@ -1052,8 +1067,9 @@ class UploadController:
             cooldown_sensor = self.cbpi.config.get("steps_cooldown_sensor", None)
             if cooldown_sensor is None or cooldown_sensor == '':
                 cooldown_sensor = self.boilkettle.sensor  # fall back to boilkettle sensor if no other sensor is specified
-            step_timer = ""                
-            step_temp = int(self.CoolDownTemp)
+            step_timer = ""      
+            
+            step_temp = int(self.CoolDownTemp) if (self.fermentation_step_temp is None or self.fermentation_step_temp <= int(self.CoolDownTemp)) else self.fermentation_step_temp
             step_string = { "name": "Cooldown",
                             "props": {
                                 "Kettle": self.boilid,
