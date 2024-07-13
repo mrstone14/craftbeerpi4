@@ -1,3 +1,3 @@
-__version__ = "4.4.1.rc1"
+__version__ = "4.4.3"
 __codename__ = "Yeast Starter"
 

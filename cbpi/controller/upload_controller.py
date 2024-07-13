@@ -17,12 +17,11 @@ import os.path
 from os import listdir
 from os.path import isfile, join
 import json
-import shortuuid
+import math
 import yaml
 from ..api.step import StepMove, StepResult, StepState
 import re
 import base64
-
 
 class UploadController:
 
@@ -70,9 +69,12 @@ class UploadController:
             return []
 
     async def get_brewfather_recipes(self,offset=0):
+        limit = 50
+        length = self.cbpi.config.get('brewfather_list_length',50)
+        repeat = True
         brewfather = True
         result=[]
-        self.url="https://api.brewfather.app/v1/recipes"
+        self.url="https://api.brewfather.app/v2/recipes"
         brewfather_user_id = self.cbpi.config.get("brewfather_user_id", None)
         if brewfather_user_id == "" or brewfather_user_id is None:
             brewfather = False
@@ -84,25 +86,63 @@ class UploadController:
         if brewfather == True:
             encodedData = base64.b64encode(bytes(f"{brewfather_user_id}:{brewfather_api_key}", "ISO-8859-1")).decode("ascii")
             headers={"Authorization": "Basic %s" % encodedData}
-            parameters={"limit": 50, 'offset': offset}
-            async with aiohttp.ClientSession(headers=headers) as bf_session:
-                async with bf_session.get(self.url, params=parameters) as r:
-                    bf_recipe_list = await r.json()
-                await bf_session.close()
-
-            if bf_recipe_list:
-                for row in bf_recipe_list:
-                    recipe_id = row['_id']
-                    name = row['name']
-                    element = {'value': recipe_id, 'label': name}
-                    result.append(element)
-                return result
-            else:
-                return []
-
-        else:
-            return []
-
+            parameters={"limit": limit}
+            while repeat == True:
+                try:
+                    async with aiohttp.ClientSession(headers=headers) as bf_session:
+                        async with bf_session.get(self.url, params=parameters) as r:
+                            if r.status == 429:
+                                try:
+                                    seconds=int(r.headers['Retry-After'])
+                                    minutes=round(seconds/60)
+                                except:
+                                    seconds=None
+                                if not seconds:
+                                    logging.error("Too many requests to BF api. Try again later")
+                                    self.cbpi.notify("Error", "Too many requests to BF api. Try again later", NotificationType.ERROR)
+                                else:
+                                    logging.error(f"Too many requests to BF api. Try in {minutes} minutes again.")
+                                    self.cbpi.notify("Error", f"Too many requests to BF api. Try in {minutes} minutes again.", NotificationType.ERROR)
+                                repeat = False
+                                logging.error(r.headers['Retry-After'])
+                            else:
+                                bf_recipe_list = await r.json()
+                        await bf_session.close()
+                except Exception as e:
+                    logging.error(e)
+                    repeat = False
+                try:
+                    if bf_recipe_list:
+                        for row in bf_recipe_list:
+                            recipe_id = row['_id']
+                            name = row['name']
+                            element = {'value': recipe_id, 'label': name}
+                            result.append(element)
+                    else:
+                        repeat = False
+                except Exception as e:
+                    logging.error(e)
+                try:
+                    if len(bf_recipe_list) != limit: 
+                        repeat = False
+                    else:
+                        parameters={"limit": limit, 'start_after': recipe_id}       
+                except Exception as e:
+                    logging.error(e)                    
+                      
+        try:
+            newlist = sorted(result, key=lambda d: d['label'])
+            listlength=len(newlist)
+            max=math.floor(listlength/length)
+            sortlist=[]
+            for i in range(0 , max+1): 
+                sortlist.append({ 'value': i*length, 'label': i*length })
+            return newlist, sortlist, length
+        except:
+            logging.error("Return empty BF recipe list")
+            sortlist=[{ 'value': 0, 'label': '0' }]
+            return result, sortlist, length
+            
         
     def get_creation_path(self):
         creation_path = self.cbpi.config.get("RECIPE_CREATION_PATH", "upload")
@@ -738,7 +778,7 @@ class UploadController:
 
             brewfather = True
             result=[]
-            self.bf_url="https://api.brewfather.app/v1/recipes/" + Recipe_ID
+            self.bf_url="https://api.brewfather.app/v2/recipes/" + Recipe_ID
             brewfather_user_id = self.cbpi.config.get("brewfather_user_id", None)
             if brewfather_user_id == "" or brewfather_user_id is None:
                 brewfather = False
@@ -774,6 +814,21 @@ class UploadController:
                     miscs = bf_recipe['miscs']
                 except:
                     miscs = None
+
+                try:
+                    fermentation_steps=bf_recipe['fermentation']['steps']
+                except:
+                    fermentation_steps=None
+
+                if fermentation_steps is not None:
+                    try:
+                        step=fermentation_steps[0]
+                        self.fermentation_step_temp=int(step['stepTemp'])
+                    except:
+                        self.fermentation_step_temp=None
+                
+                if self.fermentation_step_temp is not None and self.TEMP_UNIT != "C":
+                    self.fermentation_step_temp = round((9.0 / 5.0 *  float(self.fermentation_step_temp)+ 32))
 
                 FirstWort = self.getFirstWort(hops, "bf")
 
@@ -1012,8 +1067,9 @@ class UploadController:
             cooldown_sensor = self.cbpi.config.get("steps_cooldown_sensor", None)
             if cooldown_sensor is None or cooldown_sensor == '':
                 cooldown_sensor = self.boilkettle.sensor  # fall back to boilkettle sensor if no other sensor is specified
-            step_timer = ""                
-            step_temp = int(self.CoolDownTemp)
+            step_timer = ""      
+            
+            step_temp = int(self.CoolDownTemp) if (self.fermentation_step_temp is None or self.fermentation_step_temp <= int(self.CoolDownTemp)) else self.fermentation_step_temp
             step_string = { "name": "Cooldown",
                             "props": {
                                 "Kettle": self.boilid,

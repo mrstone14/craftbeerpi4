@@ -43,6 +43,7 @@ class SystemHttpEndpoints:
             fermentersteps=self.cbpi.fermenter.get_fermenter_steps(),
             config=self.cbpi.config.get_state(),
             notifications=self.cbpi.notification.get_state(),
+            bf_recipes=await self.cbpi.upload.get_brewfather_recipes(0),
             version=__version__,
             guiversion=version,
             codename=__codename__)

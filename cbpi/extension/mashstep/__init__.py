@@ -536,7 +536,7 @@ class CooldownStep(CBPiStep):
             if time.time() >= self.next_check:
                 self.next_check = time.time() + (self.Interval * 60)
 
-                cooldown_model = np.poly1d(np.polyfit(self.temp_array, self.time_array, 2))
+                cooldown_model = np.polynomial.polynomial.Polynomial.fit(self.temp_array, self.time_array, 2)
                 target_time=cooldown_model(self.target_temp)
                 target_timestring= datetime.fromtimestamp(target_time)
                 self.summary="ECT: {}".format(target_timestring.strftime("%H:%M"))
