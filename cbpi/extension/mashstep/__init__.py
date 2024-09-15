@@ -490,7 +490,10 @@ class CooldownStep(CBPiStep):
         await self.push_update()
 
     async def on_start(self):
-        warnings.simplefilter('ignore', np.RankWarning)
+        try:
+            warnings.simplefilter('ignore', np.exceptions.RankWarning)
+        except Exception as e:
+            logging.error(f"Numpy Error: {e}")
         self.temp_array = []
         self.time_array = []
         self.kettle = self.get_kettle(self.props.get("Kettle", None))
