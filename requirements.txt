@@ -9,7 +9,7 @@ async-timeout==4.0.3
 aiojobs==1.2.1 
 aiosqlite==0.17.0 
 cryptography==43.0.1
-pyopenssl==24.1.0
+pyopenssl==24.2.1
 requests==2.32.2 
 voluptuous==0.14.2 
 pyfiglet==1.0.2 
