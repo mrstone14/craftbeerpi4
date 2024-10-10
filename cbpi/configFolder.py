@@ -86,7 +86,10 @@ class ConfigFolder:
                     print(f"Changing owner and group of config folder recursively to {owner}:{group}")
                     self.recursive_chown(output_path, owner, group)
                 print("Removing backup file")
-                os.remove(backupfile)
+                try:
+                    os.remove(backupfile)
+                except:
+                    pass
                 Line1="Contents of restored_config.zip file have been restored."
                 Line2="In case of a partial backup you will still be prompted to run 'cbpi setup'."
                 print(Line1)
