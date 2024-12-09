@@ -3,6 +3,7 @@
 [![Build](https://github.com/PiBrewing/craftbeerpi4/actions/workflows/build.yml/badge.svg)](https://github.com/PiBrewing/craftbeerpi4/actions/workflows/build.yml)
 [![GitHub license](https://img.shields.io/github/license/PiBrewing/craftbeerpi4)](https://github.com/PiBrewing/craftbeerpi4/blob/master/LICENSE)
 ![GitHub issues](https://img.shields.io/github/issues-raw/PiBrewing/craftbeerpi4)
+[![GitHub Activity](https://img.shields.io/github/commit-activity/y/PiBrewing/craftbeerpi4.svg?label=commits)](https://github.com/PiBrewing/craftbeerpi4/commits)
 ![PyPI](https://img.shields.io/pypi/v/cbpi4)
 ![Happy Brewing](https://img.shields.io/badge/CraftBeerPi%204-Happy%20Brewing-%23FBB117)
 
