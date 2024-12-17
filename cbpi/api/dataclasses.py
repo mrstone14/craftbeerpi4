@@ -63,10 +63,13 @@ class Actor:
     def __str__(self):
         return "name={} props={}, state={}, type={}, power={}, timer={}".format(self.name, self.props, self.state, self.type, self.power, self.timer)
     def to_dict(self):
-        if self.instance:
-            return dict(id=self.id, name=self.name, type=self.type, props=self.props.to_dict(), state=self.instance.get_state(), power=self.power, timer=self.timer)
+        if self.instance is not None:
+            state = self.instance.get_state()
+            type = self.type
         else:
-            return dict(id=self.id, name=self.name, type="Not Available", props=self.props.to_dict(), state=False, power=0, timer=0)
+            state = False
+            type = "!!! MISSING TYPE !!!"
+        return dict(id=self.id, name=self.name, type=type, props=self.props.to_dict(), state=state, power=self.power, timer=self.timer)
 
 class DataType(Enum):
     VALUE="value"
