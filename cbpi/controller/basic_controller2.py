@@ -49,6 +49,7 @@ class BasicController:
                         await self.start(item.id)
                     await self.push_udpate()
         except Exception as e:
+            #logging.error(e)
             logging.warning("Invalid {} file - Creating empty file".format(self.path))
             os.remove(self.path)
             with open(self.path, "w") as file:
