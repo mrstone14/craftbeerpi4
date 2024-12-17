@@ -65,11 +65,11 @@ class Actor:
     def to_dict(self):
         if self.instance is not None:
             state = self.instance.get_state()
-            type = self.type
+            actortype = self.type
         else:
             state = False
-            type = "!!! MISSING TYPE !!!"
-        return dict(id=self.id, name=self.name, type=type, props=self.props.to_dict(), state=state, power=self.power, timer=self.timer)
+            actortype = "!!! MISSING TYPE !!!"
+        return dict(id=self.id, name=self.name, type=actortype, props=self.props.to_dict(), state=state, power=self.power, timer=self.timer)
 
 class DataType(Enum):
     VALUE="value"
