@@ -170,7 +170,7 @@ class UploadController:
                     f.close()
                     self.cbpi.notify("Success", "XML Recipe {} has been uploaded".format(filename), NotificationType.SUCCESS)
             except Exception as e:
-                self.cbpi.notify("Error" "XML Recipe upload failed: {}".format(e), NotificationType.ERROR)
+                self.cbpi.notify("Error", "XML Recipe upload failed: {}".format(e), NotificationType.ERROR)
                 pass
 
         elif content_type == 'application/json':

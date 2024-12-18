@@ -68,7 +68,7 @@ class Actor:
             actortype = self.type
         else:
             state = False
-            actortype = "!!! MISSING TYPE !!!"
+            actortype = self.type # !!! MISSING TYPE !!!
         return dict(id=self.id, name=self.name, type=actortype, props=self.props.to_dict(), state=state, power=self.power, timer=self.timer)
 
 class DataType(Enum):

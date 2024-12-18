@@ -2,7 +2,7 @@
 import logging
 import os.path
 import json
-from cbpi.api.dataclasses import Fermenter, Actor, Props
+from cbpi.api.dataclasses import Fermenter, Actor, Props, NotificationType
 import sys, os
 import shortuuid
 import asyncio
@@ -130,7 +130,9 @@ class BasicController:
             
 #            await self.push_udpate()
         except Exception as e:
-            logging.error("{} Cant start {} - {}".format(self.name, id, e))
+            line="{} Cant start {} - {}".format(self.name, id, e)
+            logging.error(line)
+            self.cbpi.notify("Error", line, NotificationType.ERROR)
 
     def get_types(self):
 #        logging.info("{} Get Types".format(self.name))
