@@ -40,13 +40,6 @@ class SystemHttpEndpoints:
         else: 
             spindledata = False
 
-        try:
-            plugin_list = await self.cbpi.plugin.load_plugin_list("cbpi4spindle")
-            version= plugin_list[0].get("Version", "not detected")
-        except:
-            version="not detected"
-
-
         return web.json_response(data=dict(
             actor=self.cbpi.actor.get_state(),
             fermenter=self.cbpi.fermenter.get_state(),
