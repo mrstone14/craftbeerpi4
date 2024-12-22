@@ -33,6 +33,19 @@ class SystemHttpEndpoints:
             version= plugin_list[0].get("Version", "not detected")
         except:
             version="not detected"
+        
+        spindle=self.cbpi.config.get("spindledata", "No")
+        if spindle == "Yes":
+            spindledata = True 
+        else: 
+            spindledata = False
+
+        try:
+            plugin_list = await self.cbpi.plugin.load_plugin_list("cbpi4spindle")
+            version= plugin_list[0].get("Version", "not detected")
+        except:
+            version="not detected"
+
 
         return web.json_response(data=dict(
             actor=self.cbpi.actor.get_state(),
@@ -45,6 +58,7 @@ class SystemHttpEndpoints:
             notifications=self.cbpi.notification.get_state(),
             bf_recipes=await self.cbpi.upload.get_brewfather_recipes(0),
             version=__version__,
+            spindledata=spindledata,
             guiversion=version,
             codename=__codename__)
             , dumps=json_dumps)

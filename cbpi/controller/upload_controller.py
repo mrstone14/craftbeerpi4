@@ -1068,8 +1068,10 @@ class UploadController:
             if cooldown_sensor is None or cooldown_sensor == '':
                 cooldown_sensor = self.boilkettle.sensor  # fall back to boilkettle sensor if no other sensor is specified
             step_timer = ""      
-            
-            step_temp = int(self.CoolDownTemp) if (self.fermentation_step_temp is None or self.fermentation_step_temp <= int(self.CoolDownTemp)) else self.fermentation_step_temp
+            try:
+                step_temp = int(self.CoolDownTemp) if (self.fermentation_step_temp is None or self.fermentation_step_temp <= int(self.CoolDownTemp)) else self.fermentation_step_temp
+            except:
+                step_temp = int(self.CoolDownTemp)
             step_string = { "name": "Cooldown",
                             "props": {
                                 "Kettle": self.boilid,
