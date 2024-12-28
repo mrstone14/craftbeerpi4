@@ -2,6 +2,7 @@ from cbpi.controller.step_controller import StepController
 from cbpi.api.dataclasses import Props, Step
 from aiohttp import web
 from cbpi.api import *
+import logging
 
 class StepHttpEndpoints():
 
@@ -10,6 +11,7 @@ class StepHttpEndpoints():
         self.controller : StepController = cbpi.step
         self.cbpi.register(self, "/step2")
 
+    # Check if this is still needed
     def create_dict(self, data):
         return dict(name=data["name"], id=data["id"], type=data.get("type"), status=data["status"],props=data["props"], state_text=data["instance"].get_state())
 

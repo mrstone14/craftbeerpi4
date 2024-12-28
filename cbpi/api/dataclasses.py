@@ -133,7 +133,8 @@ class Step:
     def to_dict(self):
 
         msg = self.instance.summary if self.instance is not None else ""
-        return dict(id=self.id, name=self.name, state_text=msg, type=self.type, status=self.status.value, props=self.props.to_dict())
+        msg2 = self.instance.summary2 if ((self.instance is not None) and (self.instance.summary2 is not None)) else None
+        return dict(id=self.id, name=self.name, state_text=msg, state_text2=msg2, type=self.type, status=self.status.value, props=self.props.to_dict())
 
 @dataclass
 class Fermenter:
