@@ -72,7 +72,6 @@ class LogController:
         # remove duplicates
         names = set(names)
 
-        
         result = None
 
         def dateparse(time_in_secs):
@@ -120,7 +119,7 @@ class LogController:
             data[name] = result.interpolate().tolist()
 
         logging.info("Send Log for {}".format(names))
-        
+
         return data
 
     async def get_data2(self, ids) -> dict:
