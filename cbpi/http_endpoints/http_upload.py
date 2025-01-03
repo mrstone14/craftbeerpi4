@@ -150,6 +150,13 @@ class UploadHttpEndpoints():
         description: Get recipe list from Brewfather App
         tags:
         - Upload
+        parameters:
+        - name: "offset"
+          in: "path"
+          description: "offset for recipe list"
+          required: true
+          type: "integer"
+          format: "int64"
         responses:
             "200":
                 description: successful operation

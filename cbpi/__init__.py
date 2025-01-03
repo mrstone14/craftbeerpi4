@@ -1,3 +1,3 @@
-__version__ = "4.4.9"
-__codename__ = "Yeast Starter"
+__version__ = "4.5.0.a2"
+__codename__ = "Cross Country"
 

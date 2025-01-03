@@ -384,7 +384,8 @@ class BoilStep(CBPiStep):
         #self.dwelltime=int(self.props.get("DwellTime", 0))*60
         self.dwelltime=5*60 #tested with 5 minutes -> not exactly 5 min due to accuracy of asyncio.sleep
         self.deviationlimit=0.3 # derived from a test
-        logging.warning(self.AutoTimer)
+        #logging.warning(self.AutoTimer)
+        self.summary2=None
 
         self.kettle=self.get_kettle(self.props.get("Kettle", None))
         if self.kettle is not None:
@@ -405,6 +406,24 @@ class BoilStep(CBPiStep):
             await self.setAutoMode(True)
         await self.push_update()
 
+    async def next_hop_timer(self):
+        hop_timers = []
+        for x in range(1, 6):
+            try:
+                hop = int(self.props.get("Hop_%s" % x, None)) * 60
+            except:
+                hop = None
+            if hop is not None:
+                hop_left = self.remaining_seconds - hop
+                if hop_left > 0:
+                    hop_timers.append(hop_left)
+
+        if len(hop_timers) != 0:
+            next_hop_timer = time.strftime("%H:%M:%S", time.gmtime(min(hop_timers)))
+        else:
+            next_hop_timer = None
+        return next_hop_timer
+    
     async def check_hop_timer(self, number, value, text):
         if value is not None and self.hops_added[number-1] is not True:
             if self.remaining_seconds != None and self.remaining_seconds <= (int(value) * 60 + 1):
@@ -417,6 +436,7 @@ class BoilStep(CBPiStep):
     async def on_stop(self):
         await self.timer.stop()
         self.summary = ""
+        self.summary2 = None
         self.kettle.target_temp = 0
         if self.AutoMode == True:
             await self.setAutoMode(False)
@@ -456,7 +476,9 @@ class BoilStep(CBPiStep):
                 estimated_completion_time = datetime.fromtimestamp(time.time()+ (int(self.props.get("Timer", 0)))*60)
                 self.cbpi.notify(self.name, 'Timer started. Estimated completion: {}'.format(estimated_completion_time.strftime("%H:%M")), NotificationType.INFO)
             else:
-                for x in range(1, 6):
+                nexthoptimer=await self.next_hop_timer()
+                self.summary2="Add Hop in: %s" % nexthoptimer if nexthoptimer is not None else None
+                for x in range(1, 6):                  
                     await self.check_hop_timer(x, self.props.get("Hop_%s" % x, None), self.props.get("Hop_%s_text" % x, None))
 
         return StepResult.DONE
