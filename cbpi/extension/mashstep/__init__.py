@@ -413,12 +413,11 @@ class BoilStep(CBPiStep):
                 hop = int(self.props.get("Hop_%s" % x, None)) * 60
             except:
                 hop = None
-            if hop is not None:
+            if hop is not None and self.remaining_seconds is not None:
                 hop_left = self.remaining_seconds - hop
                 if hop_left > 0:
                     hop_timers.append(hop_left)
-
-        if len(hop_timers) != 0:
+        if hop_timers:
             next_hop_timer = time.strftime("%H:%M:%S", time.gmtime(min(hop_timers)))
         else:
             next_hop_timer = None
@@ -476,8 +475,12 @@ class BoilStep(CBPiStep):
                 estimated_completion_time = datetime.fromtimestamp(time.time()+ (int(self.props.get("Timer", 0)))*60)
                 self.cbpi.notify(self.name, 'Timer started. Estimated completion: {}'.format(estimated_completion_time.strftime("%H:%M")), NotificationType.INFO)
             else:
-                nexthoptimer=await self.next_hop_timer()
-                self.summary2="Add Hop in: %s" % nexthoptimer if nexthoptimer is not None else None
+                if self.timer.is_running:
+                    try:
+                        nexthoptimer = await self.next_hop_timer()
+                        self.summary2="Add Hop in: %s" % nexthoptimer if nexthoptimer is not None else ""
+                    except:
+                        self.summary2=""
                 for x in range(1, 6):                  
                     await self.check_hop_timer(x, self.props.get("Hop_%s" % x, None), self.props.get("Hop_%s_text" % x, None))
 
