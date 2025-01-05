@@ -46,7 +46,7 @@ class CBPiStep(CBPiBase):
         self.props = props
         self.cancel_reason: StepResult = None
         self.summary = ""
-        self.summary2 = None
+        self.summary2 = ""
         self.task = None
         self.running: bool = False
         self.logger = logging.getLogger(__name__)
