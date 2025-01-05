@@ -385,7 +385,7 @@ class BoilStep(CBPiStep):
         self.dwelltime=5*60 #tested with 5 minutes -> not exactly 5 min due to accuracy of asyncio.sleep
         self.deviationlimit=0.3 # derived from a test
         #logging.warning(self.AutoTimer)
-        self.summary2=""
+        self.summary2=None
 
         self.kettle=self.get_kettle(self.props.get("Kettle", None))
         if self.kettle is not None:
@@ -435,7 +435,7 @@ class BoilStep(CBPiStep):
     async def on_stop(self):
         await self.timer.stop()
         self.summary = ""
-        self.summary2 = ""
+        self.summary2 = None
         self.kettle.target_temp = 0
         if self.AutoMode == True:
             await self.setAutoMode(False)
@@ -478,9 +478,9 @@ class BoilStep(CBPiStep):
                 if self.timer.is_running:
                     try:
                         nexthoptimer = await self.next_hop_timer()
-                        self.summary2="Add Hop in: %s" % nexthoptimer if nexthoptimer is not None else ""
+                        self.summary2="Add Hop in: %s" % nexthoptimer if nexthoptimer is not None else None
                     except:
-                        self.summary2=""
+                        self.summary2= None
                 for x in range(1, 6):                  
                     await self.check_hop_timer(x, self.props.get("Hop_%s" % x, None), self.props.get("Hop_%s_text" % x, None))
 
