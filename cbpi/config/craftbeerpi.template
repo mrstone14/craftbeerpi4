@@ -4,6 +4,7 @@ Description=Craftbeer Pi
 [Service]
 WorkingDirectory=/home/{{ user }}
 ExecStart={{ path }} start
+TimeoutStopSec=15
 
 [Install]
 WantedBy=multi-user.target
