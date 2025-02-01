@@ -81,7 +81,11 @@ async def error_middleware(request, handler):
         return web.json_response(status=500, data={'error': str(ex)})
     except Exception as ex:
         return web.json_response(status=500, data={'error': str(ex)})
-
+    except web.GracefulExit:
+        return web.json_response(status=500, data={'error': "GracefulExit"})
+    except asyncio.exceptions.CancelledError:
+        return web.json_response(status=500, data={'error': "CancelledError"})
+        
     return web.json_response(status=500, data={'error': message})
 
 
