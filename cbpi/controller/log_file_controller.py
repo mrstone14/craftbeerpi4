@@ -71,27 +71,19 @@ class LogController:
 
         # remove duplicates
         names = set(names)
+        timestamp_format = '%Y-%m-%d %H:%M:%S'
 
         result = None
-
-        def dateparse(time_in_secs):
-            '''
-            Internal helper for date parsing
-            :param time_in_secs:
-            :return:
-            '''
-            return datetime.datetime.strptime(time_in_secs, '%Y-%m-%d %H:%M:%S')
-
-        def datetime_to_str(o):
-            if isinstance(o, datetime.datetime):
-                return o.__str__()
 
         for name in names:
             # get all log names
             all_filenames = glob.glob(os.path.join(self.logsFolderPath, f"sensor_{name}.log*"))
             # concat all logs
-            df = pd.concat([pd.read_csv(f, parse_dates=True, date_parser=dateparse, index_col='DateTime', names=['DateTime', name], header=None) for f in all_filenames])
+            df = pd.concat([pd.read_csv(f, parse_dates=True, names=['DateTime', name], header=None) for f in all_filenames])
             logging.info("Read all files for {}".format(names))
+            df['DateTime'] = pd.to_datetime(df['DateTime'], format=timestamp_format)
+            df.set_index('DateTime', inplace=True)
+
             # resample if rate provided
             if sample_rate is not None:
                 df = df[name].resample(sample_rate).max()
@@ -123,13 +115,14 @@ class LogController:
         return data
 
     async def get_data2(self, ids) -> dict:
-        
-        dateparse = lambda dates: [datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S') for d in dates]       
+        timestamp_format = '%Y-%m-%d %H:%M:%S'     
         result = dict()
         for id in ids:
             try:
                 all_filenames = glob.glob(os.path.join(self.logsFolderPath,f"sensor_{id}.log*"))
-                df = pd.concat([pd.read_csv(f, parse_dates=['DateTime'], date_parser=dateparse, index_col='DateTime', names=['DateTime', 'Values'], header=None) for f in all_filenames])
+                df = pd.concat([pd.read_csv(f, parse_dates=['DateTime'], names=['DateTime', 'Values'], header=None) for f in all_filenames])
+                df['DateTime'] = pd.to_datetime(df['DateTime'], format=timestamp_format)
+                df.set_index('DateTime', inplace=True)
                 df = df.resample('60s').max()
                 df = df.dropna()
                 result[id] = {"time": df.index.astype(str).tolist(), "value":df.Values.tolist()}
