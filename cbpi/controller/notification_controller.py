@@ -64,9 +64,12 @@ class NotificationController:
             self.logger.error("Failed to remove listener {}".format(listener_id))
 
     async def _call_listener(self, title, message, type, action):
+        background_tasks = set()
         for id, method in self.listener.items():
-            #print(id, method)
-            asyncio.create_task(method(self.cbpi, title, message, type, action ))
+            task=asyncio.create_task(method(self.cbpi, title, message, type, action ))
+            background_tasks.add(task)
+            task.add_done_callback(background_tasks.discard)
+
 
 
     def notify(self, title, message: str, type: NotificationType = NotificationType.INFO, action=[], timeout: int=5000) -> None:
@@ -79,6 +82,7 @@ class NotificationController:
         :return: 
         '''
         notifcation_id = shortuuid.uuid()
+        background_tasks = set()
         
         def prepare_action(item):
             item.id = shortuuid.uuid()
@@ -93,7 +97,10 @@ class NotificationController:
         if len(self.notifications) > 100:
             self.notifications = self.notifications[:100]
         self.cbpi.ws.send(dict(topic=self.update_key, data=self.notifications),self.sorting)
-        asyncio.create_task(self._call_listener(title, message, type, action))
+        task= asyncio.create_task(self._call_listener(title, message, type, action))
+        background_tasks.add(task)
+        task.add_done_callback(background_tasks.discard)
+
 
     def delete_all_notifications(self):
         self.notifications = []
@@ -104,7 +111,10 @@ class NotificationController:
         try:
             action = next((item for item in self.callback_cache[notification_id]  if item.id == action_id), None)
             if action.method is not None:
-                asyncio.create_task(action.method())
+                background_tasks = set()
+                task = asyncio.create_task(action.method())
+                background_tasks.add(task)
+                task.add_done_callback(background_tasks.discard)
             del self.callback_cache[notification_id]
         except Exception as e:
             self.logger.error("Failed to call notification callback")
