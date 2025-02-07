@@ -1,11 +1,11 @@
-from abc import ABCMeta
 import asyncio
+from abc import ABCMeta
+
 from cbpi.api.config import ConfigType
 
 __all__ = ["CBPiActor"]
 
 import logging
-
 
 logger = logging.getLogger(__file__)
 
@@ -18,7 +18,7 @@ class CBPiActor(metaclass=ABCMeta):
         self.props = props
         self.logger = logging.getLogger(__file__)
         self.data_logger = None
-        self.state = False  
+        self.state = False
         self.running = False
         self.power = 100
         self.timer = 0
@@ -28,7 +28,7 @@ class CBPiActor(metaclass=ABCMeta):
 
     def log_data(self, value):
         self.cbpi.log.log_data(self.id, value)
-        
+
     def get_state(self):
         return dict(state=self.state)
 
@@ -46,7 +46,7 @@ class CBPiActor(metaclass=ABCMeta):
 
     async def run(self):
         pass
-    
+
     async def _run(self):
 
         try:
@@ -57,44 +57,42 @@ class CBPiActor(metaclass=ABCMeta):
         finally:
             await self.on_stop()
 
-
-
-    def get_static_config_value(self,name,default):
+    def get_static_config_value(self, name, default):
         return self.cbpi.static_config.get(name, default)
 
-    def get_config_value(self,name,default):
+    def get_config_value(self, name, default):
         return self.cbpi.config.get(name, default=default)
 
-    async def set_config_value(self,name,value):
-        return await self.cbpi.config.set(name,value)
+    async def set_config_value(self, name, value):
+        return await self.cbpi.config.set(name, value)
 
-    async def add_config_value(self, name, value, type: ConfigType, description, options=None):
+    async def add_config_value(
+        self, name, value, type: ConfigType, description, options=None
+    ):
         await self.cbpi.add(name, value, type, description, options=None)
 
     async def on(self, power):
-        '''
-        Code to switch the actor on. Power is provided as integer value  
-        
-        :param power: power value between 0 and 100 
+        """
+        Code to switch the actor on. Power is provided as integer value
+
+        :param power: power value between 0 and 100
         :return: None
-        '''
+        """
         pass
 
     async def off(self):
-
-        '''
+        """
         Code to switch the actor off
-        
-        :return: None 
-        '''
+
+        :return: None
+        """
         pass
 
-    async def set_power(self,power):
-        '''
-        Code to set power for actor 
-        
+    async def set_power(self, power):
+        """
+        Code to set power for actor
+
         :return: dict power
-        '''
+        """
         return dict(power=self.power)
         pass
-
