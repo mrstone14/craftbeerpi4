@@ -1,5 +1,5 @@
 typing-extensions>=4
-aiohttp==3.11.11
+aiohttp==3.11.12
 aiohttp-auth==0.1.1 
 aiohttp-route-decorator==0.1.4 
 aiohttp-security==0.5.0 
@@ -20,7 +20,7 @@ numpy==2.0.0
 cbpi4gui
 click==8.1.7
 importlib_metadata==4.11.1
-aiomqtt==2.2.0
+aiomqtt==2.3.0
 psutil==6.0.0
 zipp>=0.5
 colorama==0.4.6

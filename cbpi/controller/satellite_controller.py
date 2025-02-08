@@ -42,17 +42,6 @@ class SatelliteController:
 
     async def init(self):
 
-        # not sure if required like done in the old routine
-        async def cancel_tasks(tasks):
-            for task in tasks:
-                if task.done():
-                    continue
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-
         self.client = Client(
             self.host,
             port=self.port,
@@ -61,14 +50,16 @@ class SatelliteController:
             will=Will(topic="cbpi/disconnect", payload="CBPi Server Disconnected"),
             identifier=self.client_id,
         )
-        self.loop = asyncio.get_event_loop()
-        ## Listen for mqtt messages in an (unawaited) asyncio task
-        task = self.loop.create_task(self.listen())
-        ## Save a reference to the task so it doesn't get garbage collected
-        self.tasks.add(task)
-        task.add_done_callback(self.tasks.remove)
+        try:
+            ## Listen for mqtt messages in an (unawaited) asyncio task
+            task = asyncio.create_task(self.listen())
+            ## Save a reference to the task so it doesn't get garbage collected
+            self.tasks.add(task)
+            task.add_done_callback(self.tasks.discard)
+            self.logger.info("MQTT Connected to {}:{}".format(self.host, self.port))
+        except asyncio.CancelledError as e:
+            self.logger.error("MQTT Connection failed: {}".format(e))
 
-        self.logger.info("MQTT Connected to {}:{}".format(self.host, self.port))
 
     async def listen(self):
         while True:
@@ -85,10 +76,11 @@ class SatelliteController:
                 # Cancel
                 self.logger.warning("MQTT Listening Cancelled")
                 break
-            except MqttError as e:
-                self.logger.error("MQTT Exception: {}".format(e))
             except Exception as e:
                 self.logger.error("MQTT General Exception: {}".format(e))
+                break
+            except MqttError as e:
+                self.logger.error("MQTT Exception: {}".format(e))
             await asyncio.sleep(5)
 
     async def publish(self, topic, message, retain=False):
