@@ -138,7 +138,7 @@ class CraftBeerPiCli:
         with ZipFile("temp.zip", "r") as repo_zip:
             repo_zip.extractall()
 
-        time.sleep(1)  # windows dev container permissions problem otherwise
+        time.sleep(4)  # windows dev container permissions problem otherwise
 
         os.rename(
             os.path.join(".", "craftbeerpi4-plugin-template-main"),
