@@ -1,3 +1,3 @@
-__version__ = "4.5.1.a3"
-__codename__ = "Cross Country"
+__version__ = "4.6.0.a0"
+__codename__ = "HopsMaster"
 
