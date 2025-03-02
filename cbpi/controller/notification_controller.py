@@ -44,13 +44,17 @@ class NotificationController:
         NOTIFY_ON_ERROR = self.cbpi.config.get("NOTIFY_ON_ERROR", "No")
         if NOTIFY_ON_ERROR == "Yes":
             try:
+                message = str(record.msg)
+            except:
+                message = record.msg
+            try:
                 if record.levelno > 20:
                     # on log events higher then INFO we want to notify all clients
                     type = NotificationType.WARNING
                     if record.levelno > 30:
                         type = NotificationType.ERROR
                     self.cbpi.notify(
-                        title=f"{record.levelname}", message=record.msg, type=type
+                        title=f"{record.levelname}", message=message, type=type
                     )
             except Exception as e:
                 pass
