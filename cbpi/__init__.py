@@ -1,5 +1,6 @@
-__version__ = "4.5.1"
-__codename__ = "Cross Country"
+__version__ = "4.6.0.a0"
+__codename__ = "Hop Master"
+
 
 # 4.6.0 - Hop Master
 # 4.5.0 - Cross Country

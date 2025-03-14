@@ -4,14 +4,33 @@ import platform
 
 # read the contents of your README file
 from os import popen, path
+import os
 
 localsystem = platform.system()
+board_reqs = []
 raspberrypi=False
 if localsystem == "Linux":
     command="cat /proc/cpuinfo | grep 'Raspberry'"
     model=popen(command).read()
     if len(model) != 0:
         raspberrypi=True
+        if os.path.exists("/proc/device-tree/compatible"):
+          with open("/proc/device-tree/compatible", "rb") as f:
+            compat = f.read()
+            # Pi 5
+            if b"brcm,bcm2712" in compat:
+              board_reqs = [
+              "rpi-lgpio"
+              ]
+            # Pi 4 and Earlier
+            elif (
+              b"brcm,bcm2835" in compat
+              or b"brcm,bcm2836" in compat
+              or b"brcm,bcm2837" in compat
+              or b"brcm,bcm2838" in compat
+              or b"brcm,bcm2711" in compat
+              ):
+              board_reqs = ["RPi.GPIO"]  
 
 # read the contents of your README file
 this_directory = path.abspath(path.dirname(__file__))
@@ -63,8 +82,7 @@ setup(name='cbpi4',
           'cbpi4gui',
           'importlib_metadata',
           'numpy==2.2.3',
-          'pandas==2.2.2'] + (
-          ['rpi-lgpio'] if raspberrypi else [] ) + (
+          'pandas==2.2.2'] + board_reqs + (
           ['systemd-python'] if localsystem == "Linux" else [] ),
 
         dependency_links=[
