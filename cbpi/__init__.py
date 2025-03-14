@@ -10,5 +10,3 @@ __codename__ = "Hop Master"
 # 4.1.0 - Groundhog Day
 # 4.0.7 - November Rain
 # 4.0.0 - Spring Break
-
-

@@ -322,8 +322,7 @@ class PluginController:
                     ):
                         result.append(dict(label=meta["Name"], value=meta["Name"]))
                 except Exception as e:
-                    logger.error("FAILED to read metadata for plugin {} ".format(key))
-                    logger.error(e)
+                    logging.info("FAILED to read metadata for plugin {}: {}".format(key,e))
         except Exception as e:
             logger.error(e)
             return result
