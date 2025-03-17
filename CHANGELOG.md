@@ -1,6 +1,7 @@
 # Changelog
 
-## Upcoming changes for Server Version 4.6.X (development):
+## Upcoming changes for Server Version 4.6.X | development (25-03-XX):
+### Codename: Hop Master
 
 <strong>The existing version of the PT100/PT1000 plugin is based on a really old package to read the max31865 chip. It creates false readings on newer systems and requires the filter i implemented some time ago. I am currently working on a newer version which will require the adafruit_circuitpython_max31865 package in order to get values from the max31865 chip (development branch 0.2.x). Test show, that this is working without issues and without false readings. However, the adafruit package is ging to install several dependencies and these packages install either RPi.GPIO for older Pis or rpi.lgpio for the Pi5. With cbpi4 version 4.3.0 I changed to rpi.lgpio for all Pi boards to ensure compatibility for the Pi5 and reduce complexity for installation and the possibility to have only one pre-configured image for all boards. I have to break this and modify the setup.py in order to use different gpio packages for older Pis and the Pi5. 
 I have already created a new branch in github with server version 4.6.x which takes this into account. If you have a Pi5, it'll use the existing rpi-lgpio package and you are good to go. Installation over the existing system should be no issue.
@@ -13,7 +14,7 @@ and install it again per existing instructions. Don't remove the RPi.GPIO packag
 I will merge the cbpi4 gpiotest branch soon into the development branch and if you want to test it, please follow these instructions. 
 The new setup might also help for other hardware based plugins in future as one could use the adafruit hardware and drivers.</strong>
 
-## Server Version 4.5.1:
+## Server Version 4.5.1 (25-03-10):
 
 ### Fixes:
 - Minor adaptions to notification controller to prevent issues on the UI side (convert message to string)
@@ -21,7 +22,8 @@ The new setup might also help for other hardware based plugins in future as one 
 ### Features:
 - Allow different Cooldown steps (Step Type must start with 'Cooldown') in order to support new [cooldown step plugin](https://github.com/PiBrewing/cbpi4-cooldown-braumeister)
 
-## Server Version 4.5.0:
+## Server Version 4.5.0 (24-02-16):
+### Codename: Cross Country
 
 ### Maintenance:
 - Add swagger descriptions for more api functions (e.g. bf upload)
@@ -38,12 +40,12 @@ The new setup might also help for other hardware based plugins in future as one 
 - Add possibility to have extra pages in UI for ispindle plugin (ispindle plugin >= 1.0.0 and UI >= 0.3.18 required)
 
 
-## Server Version 4.4.8:
+## Server Version 4.4.8 (not released via pypi):
 
 ### Fixes:
 - Recipe import from Kleiner Brauhelfer database (corrupted during brewfather V2 api update)
 
-## Server Version 4.4.7:
+## Server Version 4.4.7 (24-12-20):
 
 ### Maintenance:
 - Update requirements for packages and address dependabot warnings.
@@ -54,7 +56,7 @@ The new setup might also help for other hardware based plugins in future as one 
 ### Features
 - Raise Error notifications and list them at the 'alarm bell' in case hardware cannot be started (e.g. plugin is missing).
 
-## Server Version 4.4.6:
+## Server Version 4.4.6 (24-11-04):
 
 ### Maintenance:
 - Change routine to detect user running cbpi for autostart
@@ -66,7 +68,7 @@ The new setup might also help for other hardware based plugins in future as one 
 ### Features
 - Add optional offset for mqtt temperature Sensor
 
-## Server Version 4.4.2:
+## Server Version 4.4.2 (24-07-01):
 
 ### Maintenance:
 - Adapted Brewfather recipe import to Brewfather V2 API (requires UI version 0.3.15)
@@ -74,7 +76,7 @@ The new setup might also help for other hardware based plugins in future as one 
 - Additional setting parameter in Settings on how many BF recipes can be displayed at once
 - All BF recipes are called once when browser is opened to reduce API calls. In case of changes in brewfather (additional or changed recipe), upload page has now the option to reload recipe list.
 
-## Server Version 4.4.1:
+## Server Version 4.4.1 (24-06-16):
 
 ### <strong>!!! libsystemd-dev requirement !!!</strong>:
 - In order to change some code at a later point of time, you must install ´libsystemd-dev´ manually prior upgrading the server. In a fresh installation, this can be combined with the libatlas-base-dev installation -> documentation has been updated accordingly.
@@ -98,18 +100,24 @@ The new setup might also help for other hardware based plugins in future as one 
 - Show missing files in restore zip file content in case of issues at command line.
 - Add range parameters to sensor hardware to enable different color in dashboard in case sensor value is out of range compared to target temp.
 
-## Server Version 4.3.1:
+## Server Version 4.4.0 (24-04-15):
+### Codename: Yeast Starter
+
+## Server Version 4.3.1 (24-01-01):
 - Fixed an issues for a fresh install.
 - added asyncio-timeout package to the requirements as ait was missing with a fresh install. Obviously, some dependencies have changes with the change of the required packages in 4.3.0
 
-## Server Version 4.3.0:
+## Server Version 4.3.0 (23-12-31):
+### Codename: Winter Storm
+
 - Update of some required packages
 
 ### RPi.GPIO is replaced with rpi.lgpio to accommodate compatibility with Pi5
 - <strong>On Pi 4 and below you need to remove the RPi.GPIO package from your system prior installation of cbpi4 or prior update from 4.2.0 to 4.3.0. Please read the adapted installation instructions carefully prior upgrading!!!</strong>
 - <strong>It is also required to install/upgrade cbpi4 now with the `--system-site-packages` parameter with pipx to ensure that all system packages are usable in the virtual environment. This may change later, but is currently required due to dependencies of rpi-lgpio.</strong>
 
-## Server Version 4.2.0:
+## Server Version 4.2.0 (23-11-19):
+### Codename: Indian Summer
 
 cbpi version is available at [pypi.org](https://pypi.org/project/cbpi4/4.2.0a6/) or from the [github development branch](https://github.com/PiBrewing/craftbeerpi4/tree/development)
 
@@ -139,7 +147,7 @@ cbpi version is available at [pypi.org](https://pypi.org/project/cbpi4/4.2.0a6/)
 - Bookworm is now using wayland instead of X11 window manager as default. I have some issues with my touchscreen in combination with wayland but also the standard VNC did not work properly. Therefore I switched to X11 which is possible via raspi-config. You will find the option to switch under Advanced Options.
 - Chromium Kiosk mode is working under X11. I have not tested this under wayland window manager.
 
-## Server Version 4.1.10:
+## Server Version 4.1.10 (23-06-10):
 
 ### Individual Data logging can be now done via plugin (provided by prash3r)
 - In case a developer wants to log data to different databases or files, data can be logged via plugin.
@@ -156,7 +164,7 @@ cbpi version is available at [pypi.org](https://pypi.org/project/cbpi4/4.2.0a6/)
 - Hidden parameters won't be shown on the settings page.
 - Added function to remove global config parameters.
 
-## Server Version 4.1.7:
+## Server Version 4.1.7 (23-03-30):
 
 ### Cryptography update may cause error 'X509_V_FLAG_CB_ISSUER_CHECK' or 'Illegal instruction'
 
@@ -184,3 +192,12 @@ In case of the illegal instruction issue (armv6 based 32 bit systems), you can t
 - Reduced logging will be only enabled if a Kettle or Fermenter is specified for this sensor and if the Kettle or Fermenter is inactive (not running in auto mode).
 - For the onewire sensor the reduced logging value must be larger than the regular logging/reading frequency.
 - Example: Onewire sensor is reading data every second and you have set your brew kettle as Kettle for this sensor, you have further set reduced logging to 300. the sensor will log a value every second, while you are brewing in auto mode, but sends values to the log only every 300 seconds, when the kettle is inactive. If the reduced logging value is set to 0, the logging will only take place when brewing, but it is completely disabled when the kettle is inactive.
+
+## Server Version 4.1.0 (23-02-01)
+### Codename: Groundhog Day
+
+## Server Version 4.0.7 (22-12-10)
+### Codename: November Rain
+
+## Server Version 4.0.0 (21-03-03)
+### Codename: Spring Break
