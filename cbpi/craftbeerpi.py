@@ -238,13 +238,13 @@ class CraftBeerPi:
         :return: 
         '''
         long_description = """
-        This is the api for CraftBeerPi
+        This is the api for CraftBeerPi 4
         """
         setup_swagger(self.app,
                       description=long_description,
-                      title="CraftBeerPi",
+                      title="CraftBeerPi 4",
                       api_version=self.version,
-                      contact="info@craftbeerpi.com")
+                      contact="avollkopf@web.de")
 
 
     def notify(self, title: str, message: str, type: NotificationType = NotificationType.INFO, action=[]) -> None:
