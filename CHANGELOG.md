@@ -1,8 +1,9 @@
 # Changelog
 
-## Upcoming changes for Server Version 4.6.X | development (25-03-XX):
+## Server Version 4.6.0 (25-03-20):
 ### Codename: Hop Master
 
+### Maintenance:
 <strong>The existing version of the PT100/PT1000 plugin is based on a really old package to read the max31865 chip. It creates false readings on newer systems and requires the filter i implemented some time ago. I am currently working on a newer version which will require the adafruit_circuitpython_max31865 package in order to get values from the max31865 chip (development branch 0.2.x). Test show, that this is working without issues and without false readings. However, the adafruit package is ging to install several dependencies and these packages install either RPi.GPIO for older Pis or rpi.lgpio for the Pi5. With cbpi4 version 4.3.0 I changed to rpi.lgpio for all Pi boards to ensure compatibility for the Pi5 and reduce complexity for installation and the possibility to have only one pre-configured image for all boards. I have to break this and modify the setup.py in order to use different gpio packages for older Pis and the Pi5. 
 I have already created a new branch in github with server version 4.6.x which takes this into account. If you have a Pi5, it'll use the existing rpi-lgpio package and you are good to go. Installation over the existing system should be no issue.
 If you are using a Pi4 or older Pi, the setup.py will remove the rpi-lgpio and install the older RPi.GPIO which will cause issues. I have not yet found a workaround to get the existing pipx virtual environment running with an update. 
