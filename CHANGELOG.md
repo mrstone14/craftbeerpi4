@@ -1,5 +1,11 @@
 # Changelog
 
+## Server Version 4.6.1.alpha (TBR):
+### Codename: Hop Master
+
+### Fixes:
+- Restore Config via raspberryPi did not work. Fix in system controller to check as well for 'application/zip' content type (Issue #162) (4.6.1.a1)
+
 ## Server Version 4.6.0 (25-03-20):
 ### Codename: Hop Master
 
