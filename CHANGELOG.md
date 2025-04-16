@@ -1,6 +1,6 @@
 # Changelog
 
-## Server Version 4.6.1.alpha (TBR):
+## Server Version 4.6.1 (16.04.25):
 ### Codename: Hop Master
 
 ### Fixes:
