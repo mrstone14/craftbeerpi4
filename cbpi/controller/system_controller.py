@@ -213,7 +213,7 @@ class SystemController:
             "config.yaml",
         ]
 
-        if content_type == "application/x-zip-compressed":
+        if content_type == "application/x-zip-compressed" or content_type == "application/zip":
             try:
                 content = backup_file.read()
                 if backup_file and self.allowed_file(filename, "zip"):

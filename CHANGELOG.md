@@ -1,5 +1,16 @@
 # Changelog
 
+## Server Version 4.6.1 (16.04.25):
+### Codename: Hop Master
+
+### Fixes:
+- Restore Config via raspberryPi did not work. Fix in system controller to check as well for 'application/zip' content type (Issue #162) (4.6.1.a1)
+- Fix MuMM json recipe import (4.6.1.a2)
+
+### Features:
+- Add whirlpool hop functionality - cool down to target (default is 80C), add notification step to add hops prior to further cool down (4.6.1.a2)
+- Add notification step in case of step temperature reduction (e.g. Matlasestep for Wheat beer) (4.6.1.a2)
+
 ## Server Version 4.6.0 (25-03-20):
 ### Codename: Hop Master
 
